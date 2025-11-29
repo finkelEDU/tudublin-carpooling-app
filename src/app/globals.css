@@ -1,0 +1,66 @@
+body{
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #BBB;
+}
+
+header{
+  background-color: #222;
+  color: #FFF;
+  padding: 1rem;
+}
+
+header nav a{
+  color: white;
+  text-decoration: none;
+  margin-right: 1rem;
+}
+
+header nav a:hover{
+  text-decoration: underline;
+  color: #666
+}
+
+main{
+  padding: 2rem;
+  min-height: 70vh;
+}
+
+footer{
+  background-color: #EEE;
+  text-align: center;
+  padding: 1rem;
+}
+
+.mapClass{
+  width: 75%;
+  height: 350px;
+  background-color: #AAA;
+  border: 2px dashed #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+  font-weight: bold;
+}
+
+gmp-map{
+  display: block;
+  height: 350px;
+  width: 75%;
+}
+
+#find-taxi{
+  min-height: "100px";
+  width: "75%";
+  background-color: #666;
+  border: "2px #666";
+  display: "flex";
+  align-items: "center";
+  justify-content: "center";
+}
+
+#google-maps{
+  height: "350px";
+  width: "75%";
+}
