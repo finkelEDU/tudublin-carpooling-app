@@ -2,6 +2,7 @@ import "./globals.css";
 import "leaflet/dist/leaflet.css";
 import Link from "next/link";
 
+
 export const metadata = {
   title: "TU Dublin Carpooling",
   description: "For TU Dublin students to get discounted taxis and buses",
