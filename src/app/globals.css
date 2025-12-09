@@ -139,3 +139,9 @@ gmp-map{
   width: 15%;
   height: auto;
 }
+
+.chat-history{
+  resize: none;
+  width: 200px;
+  height: 50px;
+}

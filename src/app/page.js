@@ -6,7 +6,7 @@ export default function Home(){
     <main>
 
       <h1>Welcome to TU Dublin's Carpooling</h1>
-      <p>Test paragraph</p>
+      <p>Many students are aware that </p>
 
       <body>
         <gmp-map id="google-maps"

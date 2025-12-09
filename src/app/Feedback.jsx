@@ -6,6 +6,8 @@ export default function Feedback(){
             <h1 className="header1">Feedback</h1>
             <form action="/submit" method="POST">
             <label htmlFor="driver-name" id="driver-name">Driver Name:</label>
+            <input type="text" name="driver" id="driver"></input>
+
             <br /><br />
 
             <textarea
