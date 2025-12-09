@@ -50,9 +50,10 @@ gmp-map{
   width: 75%;
 }
 
-#find-taxi{
-  min-height: "100px";
-  width: "75%";
+#find-carpool{
+  min-width: 500px;
+  height: auto;
+  padding: 20px;
   background-color: #D4F1F6;
   border: "2px #666";
   display: "flex";
@@ -60,7 +61,81 @@ gmp-map{
   justify-content: "center";
 }
 
+.find-carpool-field{
+  padding-top: 2px;
+  padding-bottom: 2px;
+  margin-left: 10px;
+}
+
+.find-carpool-button{
+  background-color: #4EA8C2;
+  font-size: 20px;
+  padding: 5px;
+  margin: auto;
+  margin-left: 15px;
+}
+
 #google-maps{
   height: "350px";
   width: "75%";
+}
+
+.chat-divs{
+  display: flex;
+}
+
+.card{
+  border: 1px solid #000000;
+  border-radius: 10px;
+  box-shadow: 5px 5px 5px #333333;
+  padding: 20px;
+  margin: 10px;
+  text-align: center;
+  min-width: 250px;
+  max-width: 500px;
+  min-height: 200px;
+  background-color: #52a4e3;
+}
+
+.card2{
+  border: 1px solid #000000;
+  border-radius: 10px;
+  box-shadow: 5px 5px 5px #333333;
+  padding: 20px;
+  margin: 10px;
+  text-align: center;
+  min-height: 400px;
+  min-width: 400px;
+  background-color: #52a4e3;
+}
+
+.header1{
+  color: #00364D;
+  text-shadow: 2px 2px 5px #00164D;
+}
+
+.nav-link{
+  font-size: 24px;
+  font-weight: bold;
+  text-shadow: 4px 4px 5px #06164f;
+}
+
+#logo{
+  animation: moveRight 0.5s ease-out 1;
+}
+
+@keyframes moveRight{
+  0%{transform: translateX(-150px);}
+  100%{transform: translateX(0px);}
+}
+
+#driver-name{
+  font-size: 20px;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.profile-icon{
+  width: 15%;
+  height: auto;
 }

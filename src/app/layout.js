@@ -1,6 +1,10 @@
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
 import Link from "next/link";
+import Script from "next/script";
+import Image from "next/image";
+import logo from "../images/carpool_logo.png";
+
 
 export const metadata = {
   title: "TU Dublin Carpooling",
@@ -12,18 +16,19 @@ export default function RootLayout({children}){
   return(
     <html lang="en">
       <head>
-        <script async src ="https://maps.googleapis.com/maps/api/js?key=AIzaSyAdE9eBtpoZLKMsiCyU1KcLS-CP4DYfVd8&libraries=maps,maker&v=beta"></script>
+        <Script async src ="https://maps.googleapis.com/maps/api/js?key=AIzaSyAdE9eBtpoZLKMsiCyU1KcLS-CP4DYfVd8&libraries=maps,marker&v=beta" />
       </head>
 
 
       <body>
         <header>
           <nav>
-            <Link href="/"></Link> {" "}
-            <Link href="/about">Search</Link>
-            <Link href="/about">Create</Link>
-            <Link href="/about">Profile</Link>
-            <Link href="/about">Chat</Link>
+            <Image src={logo} id="logo" alt="logo" width={100} height={80}/>
+            <Link className="nav-link" href="/">Home |</Link>
+            <Link className="nav-link" href="/search">Search |</Link>
+            <Link className="nav-link" href="/create">Create |</Link>
+            <Link className="nav-link" href="/profile">Profile |</Link>
+            <Link className="nav-link" href="/chat">Chat |</Link>
           </nav>
         </header>
 
