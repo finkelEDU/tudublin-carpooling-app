@@ -29,6 +29,7 @@ export default function RootLayout({children}){
             <Link className="nav-link" href="/create">Create |</Link>
             <Link className="nav-link" href="/profile">Profile |</Link>
             <Link className="nav-link" href="/chat">Chat |</Link>
+            <Link className="nav-link" href="/signup">Sign Up |</Link>
           </nav>
         </header>
 

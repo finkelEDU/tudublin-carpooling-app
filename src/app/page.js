@@ -6,7 +6,9 @@ export default function Home(){
     <main>
 
       <h1>Welcome to TU Dublin's Carpooling</h1>
-      <p>Many students are aware that </p>
+      <p>Many students are aware that travelling to TUDublin is not easy! Therefore, we will allow students and non-students to offer rides to college.</p>
+
+      <p>Signing up is easy, just click Sign Up at the top of the page and fill in a few details. Then you can request or offer carpool rides to college.</p>
 
       <body>
         <gmp-map id="google-maps"
