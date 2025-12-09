@@ -21,7 +21,7 @@ export default function CarpoolChat(){
 
             <p>Allow access while user is currently in a carpool.</p>
             
-            <img src="avatar-placeholder.png" alt="profile-pic" class="profile-icon"/>
+            <img src="avatar-placeholder.png" alt="profile-pic" className="profile-icon"/>
             <textarea placeholder="Send a message..." value={message} onChange={(e) => setMessage(e.target.value)} />
 
             <br></br>

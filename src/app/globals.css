@@ -145,3 +145,8 @@ gmp-map{
   width: 200px;
   height: 50px;
 }
+
+.scroll{
+  height: 150px;
+  overflow-y: auto;
+}

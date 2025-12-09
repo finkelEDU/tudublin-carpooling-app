@@ -54,7 +54,7 @@ export default function SearchPage() {
                     type="text"
                     id="destination"
                     value={destination}
-                    onChange={(e) => setDesintation(e.target.value)}
+                    onChange={(e) => setDestination(e.target.value)}
                     placeholder="Enter destination"
                     required
                     style={{ marginLeft: "0.5rem" }}
