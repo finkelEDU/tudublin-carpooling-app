@@ -1,5 +1,3 @@
-import Button from "@mui/material/button";
-
 export default function ChatHistory(){
     return(
         <div className="card">
@@ -18,7 +16,7 @@ export default function ChatHistory(){
                 <textarea className="chat-history" disabled defaultValue="Hope you arrive here soon, it's raining." />
             </div>
             <p>If there is a chat you want to report, please use the button below:</p>
-            <Button color="error" variant="contained">Report Abuse</Button>
+            <button>Report Abuse</button>
         </div>
     );
 }
