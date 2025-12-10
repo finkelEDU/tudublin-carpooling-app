@@ -1,4 +1,4 @@
-import { connectDb } from '../../../lib/connectDb';
+import connectDb from '../../../lib/connectDb';
 import Pool from '../../../models/Pool';
 
 export async function POST(req) {
