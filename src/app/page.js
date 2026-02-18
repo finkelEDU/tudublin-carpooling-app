@@ -33,7 +33,7 @@ export default function Home(){
         <input type="text" placeholder="Destination" className="find-carpool-field" />
 
         <button className="find-carpool-button">Search</button>
-        <button className="find-carpool-button">Post Ride</button>
+        <Link href="/create"><button className="find-carpool-button">Post Ride</button></Link>
       </div>
     </main>
   );

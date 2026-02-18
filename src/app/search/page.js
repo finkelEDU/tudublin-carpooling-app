@@ -59,7 +59,7 @@ export default function SearchPage() {
 
     return (
         <main style={{ padding: "1rem", maxWidth: "700px", margin: "auto" }}>
-            <h1>Search For A Car Or A Bus</h1>
+            <h1>Search For A Carpool</h1>
 
             {/* Search Form */}
             <form onSubmit={handleSearch} style={{ marginBottom: "2rem" }}>
@@ -72,7 +72,6 @@ export default function SearchPage() {
                     style={{ marginLeft: "0.5rem" }}
                     >
                         <option value="car">Car</option>
-                        <option value="bus">Bus</option>
                     </select>
                 </div>
 

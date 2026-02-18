@@ -120,6 +120,14 @@ gmp-map{
   text-shadow: 4px 4px 5px #06164f;
 }
 
+#emergency-link{
+  font-size: 24px;
+  font-weight: bold;
+  color: #FF0000;
+  text-shadow: 4px 4px 5px #AA0000;
+  margin-right: auto;
+}
+
 #logo{
   animation: moveRight 0.5s ease-out 1;
 }

@@ -1,6 +1,7 @@
 export default function Create(){
     return(
         //Placeholder
-        <div></div>
+        <h1>Create Carpool</h1>
+        
     );
 }

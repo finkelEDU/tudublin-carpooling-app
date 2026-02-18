@@ -230,19 +230,7 @@ export default function EmergencyPage() {
                             >
                                 Home
                             </Link>
-                            <Link
-                            href="/admin"
-                            style={{
-                                color: BLUE.text,
-                                textDecoration: "none",
-                                padding: "10px 12px",
-                                borderRadius: 12,
-                                border: "1px solid ${BLUE.stroke}",
-                                background: "rgba(255,255,255,0.04)",
-                            }}
-                            >
-                                Admin
-                            </Link>
+                            
                         </nav>
                     </header>
 
@@ -263,7 +251,7 @@ export default function EmergencyPage() {
                         }}
                         >
                             <div style={{ padding: "18px 18px 0" }}>
-                                <h2 style={{ margin: 0, fontSize: 18, letterSpacing: -0.2 }}>Report on incident</h2>
+                                <h2 style={{ margin: 0, fontSize: 18, letterSpacing: -0.2 }}>Report an incident</h2>
                                 <p style={{ margin: "8px 0 0", color: BLUE.mut }}>
                                     Provide enough detail for an admin to respond quickly. You can include trip ID, driver name, pickup point, etc.
                                 </p>
