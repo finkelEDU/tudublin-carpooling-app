@@ -3,6 +3,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
+const ADMIN_TOKEN = ProcessingInstruction.env.NEXT_PUBLIC_ADMIN_TOKEN || "";
+
 const BLUE = {
     bg: "#071022",
     panel: "rgba(255,255,255,0.06)",
@@ -21,12 +23,18 @@ const BLUE = {
 export default function AdminPage() {
     const [token, setToken] = useState("");
     const [authorized, setAuthorized] = useState(false);
-
     const [users, setUsers] = useState([]);
+    const [pools, setPools] = useState([]);
+    const [communications, setCommunications] = useState([]);
     const [audit, setAudit] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     const canQuery = useMemo(() => token.trim().length >= 8, [token]);
+
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     useEffect(() => {
         const saved = typeof window !== "undefined" ? window.localStorage.getItem("admin_token") : null;
@@ -38,6 +46,75 @@ export default function AdminPage() {
             window.localStorage.setItem("admin_token", token);
         }
     }, [token]);
+
+    async function fetchData() {
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await fetch("/api/admin", {
+                headers: {
+                    Authorization: 'Bearer ${ADMIN_TOKEN}',
+                },
+            });
+            if (!res.ok) throw new Error("Failed to fetch admin data");
+            const data = await res.json();
+            setUsers(data.users);
+            setPools(data.pools);
+            setCommunications(data.communications);
+        } catch (e) {
+            setError(e.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function sendData(method, body) {
+        setError(null);
+        try {
+            const res = await fetch("/api/admin", {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: 'Bearer ${ADMIN_TOKEN}',
+                },
+                body: JSON.stringify(body),
+            });
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(e.error || "Request failed");
+            }
+            return await res.json();
+        } catch (e) {
+            setError(e.message);
+            return null;
+        }
+    }
+
+    async function addUser() {
+        const name = prompt("Enter user name:");
+        const email = prompt("Enter user email:");
+        if (name && email) {
+            const newUser = await sendData("POST", { type: "user", name, email });
+            if (newUser) setUsers([...users, newUser]);
+        }
+    }
+
+    async function deleteUser(id) {
+        setError(null);
+        try {
+            const res = await fetch("/api/admin?id=${id}&type=user", {
+                method: "DELETE",
+                headers: { Authorization: "Bearer ${ADMIN_TOKEN}" },
+            });
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || "Delete failed");
+            }
+            setUsers(users.filter(u => u.id !== id));
+        } catch (e) {
+            setError(e.message);
+        }
+    }
 
     async function loadDashboard() {
         setLoading(true);
