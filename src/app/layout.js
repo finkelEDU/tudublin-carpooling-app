@@ -29,9 +29,10 @@ export default function RootLayout({children}){
             <Link className="nav-link" href="/create">Create |</Link>
             <Link className="nav-link" href="/profile">Profile |</Link>
             <Link className="nav-link" href="/chat">Chat |</Link>
-            <Link className="nav-link" href="/signup">Sign Up |</Link>
+            <Link className="nav-link" href="/register">Sign Up |</Link>
             <Link className="nav-link" href="/reviews">Reviews |</Link>
             <Link id="emergency-link" href="/emergency">Emergency </Link>
+            <Link className='nav-link' href='/login'>Sign In</Link>
 
             {/*If user is an admin, a link to admin page should be added to nav.
               Furthermore, a guest or normal user cannot be allowed access to admin page from typing the url*/}
