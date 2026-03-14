@@ -8,158 +8,201 @@ const TileLayer = dynamic(() => import("react-leaflet").then(mod => mod.TileLaye
 const Marker = dynamic(() => import("react-leaflet").then(mod => mod.Marker), { ssr: false });
 const Popup = dynamic(() => import("react-leaflet").then(mod => mod.Popup), { ssr: false });
 
+const mockResultsData = [
+    {
+        id: 1,
+        type: "car",
+        number: "123",
+        destination: "City Airport",
+        available: true,
+        coords: [51.505, -0.09],
+        driver: "Thomas",
+    },
+    {
+        id: 2,
+        type: "bus",
+        number: "45B",
+        destination: "Airport",
+        available: false,
+        coords: [51.51, -0.1],
+        driver: "Rosie",
+    },
+];
+
 export default function SearchPage() {
     const [vehicleNumber, setVehicleNumber] = useState("");
-    const [rideType, setRideType] = useState("car");
+    const [rideType, setRideType] = useState("Driver");
     const [destination, setDestination] = useState("");
     const [dateTime, setDateTime] = useState("");
     const [results, setResults] = useState([]);
 
-    const mockResultsData = [
-        {
-            id: 1,
-            type: "car",
-            number: "123",
-            destination: "City Airport",
-            available: true,
-            coords: [51.505, -0.09],
-            driver: "Thomas",
-        },
-        {
-            id: 2,
-            type: "bus",
-            number: "45B",
-            destination: "Airport",
-            available: false,
-            coords: [51.51, -0.1],
-            driver: "Rosie",
-        },
-    ];
-
     const handleSearch = (e) => {
-        e.preventDefault();
-
         const filtered = mockResultsData.filter(
-            (item) =>
-                item.type === rideType &&
-                item.number.includes(vehicleNumber) &&
-                item.destination.toLowerCase().includes(destination.toLowerCase()) &&
-                item.available
+            (r) =>
+            (!destination || r.destination.toLowerCase().includes(destination.toLowerCase())) &&
+            (!rideType || r.rideType === rideType)
         );
         setResults(filtered);
     };
 
     const clearSearch = () => {
         setVehicleNumber("");
-        setRideType("car");
+        setRideType("Driver");
         setDestination("");
         setDateTime("");
         setResults([]);
     };
 
     return (
-        <main style={{ padding: "1rem", maxWidth: "700px", margin: "auto" }}>
-            <h1>Search For A Carpool</h1>
+        <main style={styles.page}>
+            <h1 style={styles.title}>Search For A Carpool Ride</h1>
 
-            {/* Search Form */}
-            <form onSubmit={handleSearch} style={{ marginBottom: "2rem" }}>
-                <div style={{ marginBottom: "1rem" }}>
-                    <label htmlFor="rideType">Ride Type:</label>
-                    <select
-                    id="rideType"
-                    value={rideType}
-                    onChange={(e) => setRideType(e.target.value)}
-                    style={{ marginLeft: "0.5rem" }}
-                    >
-                        <option value="car">Car</option>
-                    </select>
+            <section style={styles.formSection}>
+                <input
+                type="text"
+                placeholder="Vehicle Number"
+                value={vehicleNumber}
+                onChange={(e) => setVehicleNumber(e.target.value)}
+                style={styles.input}
+                />
+                <select value={rideType} onChange={(e) => setRideType(e.target.value)} style={styles.select}>
+                    <option value="Driver">Driver</option>
+                    <option value="Passenger">Passenger</option>
+                </select>
+                <input
+                type="text"
+                placeholder="Destination"
+                value={destination}
+                onChange={(e) => setDestination(e.target.value)}
+                style={styles.input}
+                />
+                <input
+                type="datetime-local"
+                value={dateTime}
+                onChange={(e) => setDateTime(e.target.value)}
+                style={styles.input}
+                />
+                <div style={styles.buttons}>
+                    <button onClick={handleSearch} style={styles.button}>
+                        Search
+                    </button>
+                    <button onClick={clearSearch} style={{ ...styles.button, ...styles.clearButton }}>
+                        Clear
+                    </button>
                 </div>
+            </section>
 
-                <div style={{ marginBottom: "1rem" }}>
-                    <label htmlFor="vehicleNumber">Vehicle Number:</label>
-                    <input
-                    type="text"
-                    id="vehicleNumber"
-                    value={vehicleNumber}
-                    onChange={(e) => setVehicleNumber(e.target.value)}
-                    placeholder={'Enter ${rideType} number'}
-                    style={{ marginLeft: "0.5rem" }}
-                    />
-                </div>
-
-                <div style={{ marginBottom: "1rem" }}>
-                    <label htmlFor="destination">Destination:</label>
-                    <input
-                    type="text"
-                    id="destination"
-                    value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
-                    placeholder="Enter destination"
-                    style={{ marginLeft: "0.5rem" }}
-                    />
-                </div>
-
-                {/* Date And Time Picker */}
-                <div style={{ marginBottom: "1rem" }}>
-                    <label htmlFor="dateTime">Date & Time:</label>
-                    <input
-                    type="datetime-local"
-                    id="dateTime"
-                    value={dateTime}
-                    onChange={(e) => setDateTime(e.target.value)}
-                    style={{ marginLeft: "0.5rem" }}
-                    />
-                </div>
-
-                <button type="submit" style={{ marginRight: "1rem"}}>
-                    Search
-                </button>
-                <button type="button" onClick={clearSearch}>
-                    Clear
-                </button>
-            </form>
-
-            {/* Search Results */}
-            <section style={{ marginBottom: "2rem" }}>
-                <h2>Results</h2>
+            <section style={styles.resultsSection}>
+                <h2 style={styles.subtitle}>Results</h2>
                 {results.length === 0 ? (
-                    <p>No Results Found. Please Enter Search Criteria.</p>
+                    <p>No results found.</p>
                 ) : (
-                    <ul>
-                        {results.map((result) => (
-                            <li key={result.id} style={{ marginBottom: "1rem" }}>
-                                <strong>{result.type.toUpperCase()}</strong> #{result.number} to{" "}
-                                {result.destination} - Driver: {result.driver} -{" "}
-                                {result.available ? "Available" : "Not Available"}
+                    <ul style={styles.resultsList}>
+                        {results.map((r) => (
+                            <li key={r.id} style={styles.resultItem}>
+                                <strong>{r.driverName}</strong> ({r.vehicleNumber}) - {r.rideType} to {r.destination} at{" "}
+                                {new Date(r.dateTime).toLocaleString()}
                             </li>
                         ))}
                     </ul>
                 )}
             </section>
 
-            {/* Map Preview */}
-            {results.length > 0 && (
-                <section>
-                    <h2>Map Preview</h2>
-                    <MapContainer
-                    center={results[0].coords}
-                    zoom={13}
-                    style={{ height: "300px", width: "100px" }}
-                    >
-                        <TileLayer
-                        attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
-                        {results.map((result) => (
-                            <Marker key={result.id} position={result.coords}>
+            <section style={styles.mapSection}>
+                <h2 style={styles.subtitle}>Map Preview</h2>
+                <div style={styles.mapContainer}>
+                    <MapContainer center={[53.349805, -6.26031]} zoom={11} style={{ height: "100%", width: "100%" }}>
+                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                        {results.map((r) => (
+                            <Marker key={r.id} position={r.latLng}>
                                 <Popup>
-                                    {result.type.toUpperCase()} #{result.number} to {result.destination}
+                                    {r.driverName} ({r.vehicleNumber})<br />
+                                    {r.destination} at {new Date(r.dateTime).toLocaleString()}
                                 </Popup>
                             </Marker>
                         ))}
                     </MapContainer>
-                </section>
-            )}
+                </div>
+            </section>
         </main>
     );
 }
+
+const styles = {
+    page: {
+        maxWidth: 900,
+        margin: "3rem auto",
+        padding: "0 1.2rem",
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+        color: "#0f172a",
+    },
+    title: {
+        fontSize: "2.5rem",
+        fontWeight: "700",
+        marginBottom: "1rem",
+        color: "#2563eb",
+    },
+    formSection: {
+        display: "grid",
+        grimTemplateColumns: "1fr 1fr",
+        gap: 12,
+        marginBottom: "2rem",
+    },
+    input: {
+        padding: "10px 12px",
+        fontSize: "1rem",
+        borderRadius: 6,
+        border: "1px solid #ccc",
+        width: "100%",
+    },
+    select: {
+        padding: "10px 12px",
+        fontSize: "1rem",
+        borderRadius: 6,
+        border: "1px solid #ccc",
+        width: "100%", 
+    },
+    buttons: {
+        gridColumn: "span 2",
+        display: "flex",
+        gap: 12,
+    },
+    button: {
+        flex: 1,
+        padding: "12px 0",
+        fontWeight: "600",
+        fontSize: "1rem",
+        borderRadius: 8,
+        border: "none",
+        backgroundColor: "#2563eb",
+        color: "white",
+        cursor: "pointer",
+    },
+    clearButton: {
+        backgroundColor: "#6b7280",
+    },
+    resultsSection: {
+        marginBottom: "2rem",
+    },
+    subtitle: {
+        fontSize: "1.5rem",
+        fontWeight: "600",
+        marginBottom: "1rem",
+        color: "#2563eb",
+    },
+    resultsList: {
+        listStyle: "none",
+        padding: 0,
+    },
+    resultItem: {
+        padding: "8px 0",
+        borderBottom: "1px solid #ddd",
+    },
+    mapSection: {
+        height: 400,
+    },
+    mapContainer: {
+        height: "100%",
+        width: "100%",
+    },
+};
