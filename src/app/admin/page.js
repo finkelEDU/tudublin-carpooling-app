@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 
-const ADMIN_TOKEN = ProcessingInstruction.env.NEXT_PUBLIC_ADMIN_TOKEN || "";
+const ADMIN_TOKEN = process.env.NEXT_PUBLIC_ADMIN_TOKEN || "";
 
 const BLUE = {
     bg: "#071022",
@@ -29,8 +29,65 @@ export default function AdminPage() {
     const [audit, setAudit] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [auditLogs, setAuditLogs] = useState(demoAudit);
+    const [filterText, setFilterText] = useState("");
+    const [sortKey, setSortKey] = useState("name");
+    const [sortAsc, setSortAsc] = useState(true);
+    const [selectedUserIds, setSelectedUserIds] = useState(new setAudit());
+    const [theme, setTheme] = useState("light");
+    const [confirmModal, setConfirmModal] = useState({ visible: false, action: null, message: "" });
 
     const canQuery = useMemo(() => token.trim().length >= 8, [token]);
+
+    const filteredSortedUsers = useMemo(() => {
+        let filtered = users.filter(
+            (u) =>
+                u.name.toLowerCase().includes(filterText.toLowerCase()) ||
+                u.email.toLowerCase().includes(filterText.toLowerCase())
+        );
+        filtered.sort((a, b) => {
+            if (a[sortKey] < b [sortKey]) return sortAsc ? -1: 1;
+            if (a[sortKey] > b [sortKey]) return sortAsc ? 1: -1;
+            return 0;
+        });
+        return filtered;
+    }, [users, filterText, sortKey, sortAsc]);
+
+    const toggleUserSelection = (id) => {
+        setSelectedUserIds((prev) => {
+            const newSet = new setAudit(prev);
+            if (newSet.has(id)) newSet.delete(id);
+            else newSet.add(id);
+            return newSet;
+        });
+    };
+
+    const bulkDeleteUsers = () => {
+        if (selectedUserIds.size === 0) {
+            alert("No users selected.");
+            return;
+        }
+        setConfirmModal({
+            visible: true,
+            action: () => {
+                setUsers((prev) => prev.filter((u) => !selectedUserIds.has(u.id)));
+                setSelectedUserIds(new Set());
+                setConfirmModal({ visible: false, action: null, message: "" });
+                showToast('${selectedUserIds.size} user(s) deleted.');
+            },
+            message: 'Are you sure you want to delete ${selectedUserIds.size} user(s)? This action cannot be undone.',
+        });
+    };
+
+    const [toast, setToast] = useState({ visible: false, message: "" });
+    const showToast = (message) => {
+        setToast({ visible: true, message });
+        setTimeout(() => setToast({ visible: false, message: "" }), 3500);
+    };
+
+    const toggleTheme = () => {
+        setTheme((t) => (t === "light" ? "dark" : "light"));
+    };
 
     useEffect(() => {
         fetchData();
@@ -46,6 +103,21 @@ export default function AdminPage() {
             window.localStorage.setItem("admin_token", token);
         }
     }, [token]);
+
+    useEffect(() => {
+        const handler = (e) => {
+            if (e.ctrlKey && e.key === "r") {
+                e.preventDefault();
+                refresh();
+            }
+            if (e.ctrlKey && e.key === "d") {
+                e.preventDefault();
+                bulkDeleteUsers();
+            }
+        };
+        window.addEventListener("keydown", handler);
+        return () => window.removeEventListener("keydown", handler);
+    }, [selectedUserIds]);
 
     async function fetchData() {
         setLoading(true);
@@ -143,6 +215,7 @@ export default function AdminPage() {
     async function refresh() {
         if (!canQuery) return;
         await loadDashboard();
+        await fetchData();
     }
 
     return (
@@ -194,6 +267,120 @@ export default function AdminPage() {
                     alignItems: "start",
                 }}
                 >
+                    <article style={panelStyle()}>
+                        <h2 style={h2Style}>Users</h2>
+                        <input
+                        type="text"
+                        placeholder="Search users by name or email..."
+                        value={filterText}
+                        onChange={(e) => setFilterText(e.target.value)}
+                        style={inputStyle}
+                        aria-label="Search users"
+                    />
+                    <div style={{ marginBottom: 12 }}>
+                        <button
+                        onClick={() => {
+                            setSortKey("name");
+                            setSortAsc((asc) => (sortKey === "name" ? !asc : true));
+                        }}
+                        style={buttonStyle}
+                        >
+                            Sort by Name {sortKey === "name" ? (sortAsc ? "1" : "0") : ""}
+                        </button>
+                        <button
+                        onClick={() => {
+                            setSortKey("email");
+                            setSortAsc((asc) => (sortKey === "email" ? !asc : true));
+                        }}
+                        style={buttonStyle}
+                        >
+                            Sort by Email {sortKey === "email" ? (sortAsc ? "1" : "0") : ""}
+                        </button>
+                        <button onClick={bulkDeleteUsers} style={{ ...buttonStyle, backgroundColor: "#d9534f"}}>
+                            Delete Selected
+                        </button>
+                        <button onClick={refresh} style={buttonStyle}>
+                            Refresh Data
+                        </button>
+                    </div>
+
+                    {loading && <p>Loading...</p>}
+                    {error && <p style={{ color: "red" }}>{error}</p>}
+
+                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input
+                                    type="checkbox"
+                                    onChange={(e) =>
+                                        setSelectedUserIds(
+                                            e.target.checked ? new Set(users.map((u) => u.id)) : new Set()
+                                        )
+                                    }
+                                    checked={selectedUserIds.size === users.length && users.length > 0}
+                                    ara-label="Select all users"
+                                    />
+                                </th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredSortedUsers.map((user) => (
+                                <tr key={user.id} style={{ borderBottom: "1px solid #ccc" }}>
+                                    <td>
+                                        <input
+                                        type="checkbox"
+                                        checked={selectedUserIds.has(user.id)}
+                                        onChange={() => toggleUserSelection(user.id)}
+                                        aria-label={'Select user ${user.name}'}
+                                    />
+                                    </td>
+                                    <td>{user.name}</td>
+                                    <td>{user.email}</td>
+                                        <td>
+                                            <Pill>{user.role}</Pill>
+                                        </td>
+                                        <td>
+                                            <button
+                                            onClick={() => {
+                                                setConfirmModal({
+                                                    visible: true,
+                                                    action: () => {
+                                                        setUsers((prev) => prev.filter((u) => u.id !== user.id));
+                                                        setSelectedUserIds((prev) => {
+                                                            const newSet = new Set(prev);
+                                                            newSet.delete(user.id);
+                                                            return newSet;
+                                                        });
+                                                        setConfirmModal({ visible: false, action: null, message: "" });
+                                                        showToast('User ${user.name} deleted.');
+                                                    },
+                                                    message: 'Are you sure you want to delete user "${user.name}"? This action cannot be undone.',
+                                                });
+                                            }}
+                                            style={{ ...buttonStyle, backgroundColor: "#d9534f", fontSize: 14, padding: "6px 12px" }}
+                                            aria-label={'Delete user ${user.name}'}
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {filteredSortedUsers.length === 0 && (
+                                    <tr>
+                                        <td colSpan={5} style={{ textAlign: "center", padding: 20 }}>
+                                            No Users Found.
+                                        </td>
+                                    </tr>
+                                )}
+                        </tbody>
+                    </table>
+                    </article>
+
                     <article style={panelStyle()}>
                         <h2 style={h2Style()}>Authentication</h2>
                         <p style={{ margin: "8px 0 0", color: BLUE.mut }}>
@@ -327,7 +514,95 @@ export default function AdminPage() {
                             </div>
                         </div>
                     </article>
+
+                    <article style={panelStyle}>
+                        <h2 style={h2Style}>Audit Logs</h2>
+                        <div style={{ maxHeight: 300, overflowY: "auto", border: "1px solid #ccc", borderRadius: 8, padding: 12 }}>
+                            {auditLogs.length === 0 && <p>No Audit Logs Available</p>}
+                            {auditLogs.map((log) => (
+                                <article key={log.id} style={{ marginBottom: 12, borderBottom: "1px solid #eee", paddingBottom: 8 }}>
+                                    <p>
+                                        <strong>{log.action}</strong> by <em>{log.user}</em>
+                                    </p>
+                                    <p style={{ fontSize: 12, color: "#666"}}>{new Date(log.date).toLocaleString()}</p>
+                                </article>
+                            ))}
+                        </div>
+                    </article>
                 </section>
+
+                {confirmModal.visible && (
+                <div
+                    role="dialog"
+                    aria-model="true"
+                    aria-labelledby="confirm-dialog-title"
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(0,0,0,0.5)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 1000,
+                    }}
+                >
+                    <div
+                    style={{
+                        backgroundColor: "white",
+                        padding: 24,
+                        borderRadius: 12,
+                        maxWidth: 400,
+                        width: "90%",
+                        boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+                    }}
+                    >
+                        <h3 id="confirm-dialog-title" style={{ marginBottom: 16 }}>
+                            Confirm Action
+                        </h3>
+                        <p style={{ marginBottom: 24 }}>{confirmModal.message}</p>
+                        <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
+                            <button
+                            onClick={() => setConfirmModal({ visible: false, action: null, message: "" })}
+                            style={{ ...buttonStyle, backgroundColor: "#ccc", color: "#333" }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                            onClick={() => {
+                                if (confirmModal.action) confirmModal.action();
+                            }}
+                            style={{ ...buttonStyle, backgroundColor: "#d9534f" }}
+                            >
+                                Confirm
+                            </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {toast.visible && (
+                    <div
+                    role="status"
+                    aria-live="polite"
+                    style={{
+                        position: "fixed",
+                        bottom: 20,
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        backgroundColor: BLUE,
+                        color: "white",
+                        padding: "12px 24px",
+                        borderRadius: 24,
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                        zIndex: 1000,
+                    }}
+                    >
+                        {toast.message}
+                    </div>
+                )}
 
                 <style jsx global>{`
                 * {
