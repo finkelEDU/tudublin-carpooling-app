@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 
-export default function ProfilePage() {
-    const initialUser = {
+const initialUser = {
         avatarUrl: "/avatar-placeholder.png",
         name: "Clark Kent",
         email: "clark.kent@example.com",
@@ -21,179 +20,248 @@ export default function ProfilePage() {
         },
     };
 
-    const [user, setUser] = useState(initialUser);
-    const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState(initialUser);
+const popularRoutesMock = [
+    { id: 1, origin: "Metropolis", destination: "Gotham", frequency: "Weekly"},
+    { id: 2, origin: "Gotham", destination: "Metropolis", frequency: "Weekly"},
+]
 
-    const toggleEdit = () => {
-        setIsEditing(!isEditing);
-        setFormData(user);
-    };
+export default function ProfilePage() {
+    const [user, setUser] = useState(initialUser);
+    const [editMode, setEditMode] = useState(false);
+    const [password, setPassword] = useState({ current: "", new: "", confirm: "" });
+    const [message, setMessage] = useState("");
+
+    const toggleEdit = () => setEditMode(!editMode);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        setUser((prev) => ({ ...prev, [name]: value }));
     };
 
     const handlePreferenceChange = (e) => {
+        setUser((prev) => ({ ...prev, preferredVehicle: e.target.value }));
+    };
+
+    const handlePasswordChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            preferences: { ...prev.preferences, [name]: value },
-        }));
+        setPassword((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSave = () => {
-        setUser(formData);
-        setIsEditing(false);
+        if (password.new && password.new !== password.confirm) {
+            setMessage("New password and confirmation do not match.");
+            return;
+        }
+        setMessage("Profile updated successfully!");
+        setEditMode(false);
+        setPassword({ current: "", new: "", confirm: "" });
     };
 
     return (
-        <main style={{ padding: "1rem", maxWidth: "700px", margin: "auto" }}>
-            {/* Profile Picture And Ratings */}
-            <section style={{ marginBottom: "2rem", textAlign: "center "}}>
-                <img
-                src={user.avatarUrl}
-                alt={'${user.name} avatar'}
-                style={{ width: "120px", height: "120px", borderRadius: "50%" }}
-                />
-                <h1>{user.name}</h1>
-                <p>Rating: {user.ratings} / 5 *****</p>
-                <p>Status: <strong>{user.status}</strong></p>
-            </section>
+        <main style={styles.page}>
+            <h1 style={styles.title}>Profile</h1>
+            <section style={styles.section}>
+                <table style={styles.table}>
+                    <tbody>
+                        <tr>
+                            <th>Name</th>
+                            <td>
+                                {editMode ? (
+                                    <input
+                                    type="text"
+                                    name="name"
+                                    value={user.name}
+                                    onChange={handleChange}
+                                    style={styles.input}
+                                    />
+                                ) : (
+                                    user.name
+                                )}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td>{user.email}</td>
+                        </tr>
+                        <tr>
+                            <th>Telephone</th>
+                            <td>
+                                {editMode ? (
+                                    <input
+                                    type="tel"
+                                    name="telephone"
+                                    value={user.telephone}
+                                    onChange={handleChange}
+                                    style={styles.input}
+                                    />
+                                ) : (
+                                    user.telephone
+                                )}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>User Type</th>
+                            <td>{user.userType}</td>
+                        </tr>
+                        <tr>
+                            <th>Home Address</th>
+                            <td>
+                                {editMode ? (
+                                    <input
+                                    type="text"
+                                    name="homeAddress"
+                                    value={user.homeAddress}
+                                    onChange={handleChange}
+                                    style={styles.input}
+                                    />
+                                ) : (
+                                    user.homeAddress
+                                )}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Preferred Vehicle</th>
+                            <td>
+                                {editMode ? (
+                                    <select
+                                    name="preferredVehicle"
+                                    value={user.preferredVehicle}
+                                    onChange={handlePreferenceChange}
+                                    style={styles.select}
+                                    >
+                                        <option value="Car">Car</option>
+                                        <option value="Bus">Bus</option>
+                                        <option value="Bike">Bike</option>
+                                    </select>
+                                ) : (
+                                    user.preferredVehicle
+                                )}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
-            {/* Edit Button */}
-            <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-                <button onClick={toggleEdit}>
-                    {isEditing ? "Cancel Edit" : "Edit Profile"}
-                </button>
-            </div>
+                {editMode && (
+                    <section style={{ marginTop: 20 }}>
+                        <h2 style={styles.subtitle}>Change Password</h2>
+                        <input
+                        type="password"
+                        name="current"
+                        placeholder="Current Password"
+                        value={password.current}
+                        onChange={handlePasswordChange}
+                        style={styles.input}
+                        />
+                        <input
+                        type="password"
+                        name="new"
+                        placeholder="New Password"
+                        value={password.new}
+                        onChange={handlePasswordChange}
+                        style={styles.input}
+                        />
+                        <input
+                        type="password"
+                        name="confirm"
+                        placeholder="Confirm New Password"
+                        value={password.confirm}
+                        onChange={handlePasswordChange}
+                        style={styles.input}
+                        />
+                    </section>
+                )}
 
-            {/* User Information Section */}
-            <section style={{ marginBottom: "2rem" }}>
-                <h2>User Information</h2>
-                {isEditing ? (
-                    <form>
-                        <label>
-                            Name:
-                            <input
-                            type="text"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            />
-                        </label>
-                        <br />
-                        <label>
-                            Email:
-                            <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            />
-                        </label>
-                        <br />
-                        <label>
-                            Phone:
-                            <input
-                            type="tel"
-                            name="phone"
-                            value={formData.phone}
-                            onChange={handleChange}
-                            />
-                        </label>
-                        <br />
-                        <label>
-                            User Type:
-                            <select
-                            name="userType"
-                            value={formData.userType}
-                            onChange={handleChange}
-                            >
-                                <option value="Driver">Driver</option>
-                                <option value="Passenger">Passenger</option>
-                            </select>
-                        </label>
-                        <br />
-                        <label>
-                            Home Address:
-                            <input
-                            type="type"
-                            name="homeAddress"
-                            value={formData.homeAddress}
-                            onChange={handleChange}
-                            />
-                        </label>
-                        <br />
-
-                        {/* User Preferences */}
-                        <label>
-                            Preferred Vehicle:
-                            <select
-                            name="preferredVehicle"
-                            value={formData.preferences.preferredVehicle}
-                            onChange={handlePreferenceChange}
-                            >
-                                <option value="Car">Car</option>
-                                <option value="Bus">Bus</option>
-                                <option value="Bike">Bike</option>
-                            </select>
-                        </label>
-                        <br />
-
-                        {/* Password Change */}
-                        <label>
-                            Change Password:
-                            <input type="password" name="password" placeholder="New Password" />
-                        </label>
-                        <br />
-
-                        <button type="button" onClick={handleSave}>
+                <div style={styles.buttons}>
+                    <button onClick={toggleEdit} style={styles.button}>
+                        {editMode ? "Cancel" : "Edit Profile"}
+                    </button>
+                    {editMode && (
+                        <button onClick={handleSave} style={{ ...styles.button, ...styles.primaryButton }}>
                             Save Changes
                         </button>
-                    </form>
-                ) : (
-                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                        <tbody>
-                            <tr>
-                                <td style={{ border: "1px solid #ccc", padding: "8px"}}>Name</td>
-                                <td style={{ border: "1px solid #ccc", padding: "8px"}}>{user.name}</td>
-                            </tr>
-                            <tr>
-                                <td style={{ border: "1px solid #ccc", padding: "8px"}}>Email</td>
-                                <td style={{ border: "1px solid #ccc", padding: "8px"}}>{user.email}</td>
-                            </tr>
-                            <tr>
-                                <td style={{ border: "1px solid #ccc", padding: "8px"}}>Phone</td>
-                                <td style={{ border: "1px solid #ccc", padding: "8px"}}>{user.phone}</td>
-                            </tr>
-                            <tr>
-                                <td style={{ border: "1px solid #ccc", padding: "8px"}}>User Type</td>
-                                <td style={{ border: "1px solid #ccc", padding: "8px"}}>{user.userType}</td>
-                            </tr>
-                            <tr>
-                                <td style={{ border: "1px solid #ccc", padding: "8px"}}>Home Address</td>
-                                <td style={{ border: "1px solid #ccc", padding: "8px"}}>{user.homeAddress}</td>
-                            </tr>
-                            <tr>
-                                <td style={{ border: "1px solid #ccc", padding: "8px"}}>Preferred Vehicle</td>
-                                <td style={{ border: "1px solid #ccc", padding: "8px"}}>{user.preferences.preferredVehicle}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                )}
+                    )}
+                </div>
+
+                {message && <p style={styles.message}>{message}</p>}
             </section>
 
-            {/* Popular Routes */}
-            <section>
-                <h2>Popular Routes</h2>
+            <section style={styles.section}>
+                <h2 style={styles.subtitle}>Popular Routes</h2>
                 <ul>
-                    {user.popularRoutes.map((route) => (
-                        <li key={route.id}>{route.route}</li>
+                    {popularRoutesMock.map((route) => (
+                        <li key={route.id}>
+                            {route.origin} || {route.destination} ({route.frequency})
+                        </li>
                     ))}
                 </ul>
             </section>
         </main>
     );
 }
+
+const styles = {
+    page: {
+        maxWidth: 720,
+        margin: "3rem auto",
+        padding: "0 1.2rem",
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+        color: "#0f172a",
+    },
+    title: {
+        fontSize: "2.5rem",
+        fontWeight: "700",
+        marginBottom: "1rem",
+        color: "#2563eb",
+    },
+    section: {
+        marginBottom: "2rem",
+    },
+    subtitle: {
+        fontSize: "1.5rem",
+        fontWeight: "600",
+        marginBottom: "1rem",
+        color: "#2563eb",
+    },
+    table: {
+        width: "100%",
+        borderCollapse: "collapse",
+    },
+    input: {
+        width: "100%",
+        padding: "8px 10px",
+        fontSize: "1rem",
+        borderRadius: 6,
+        border: "1px solid #ccc",
+    },
+    select: {
+        width: "100%",
+        padding: "8px 10px",
+        fontSize: "1rem",
+        borderRadius: 6,
+        border: "1px solid #ccc",
+    },
+    buttons: {
+        marginTop: 20,
+        display: "flex",
+        gap: 12,
+    },
+    button: {
+        padding: "10px 18px",
+        fontWeight: "600",
+        fontSize: "1rem",
+        borderRadius: 8,
+        border: "1px solid #2563eb",
+        backgroundColor: "white",
+        color: "#2563eb",
+        cursor: "pointer",
+    },
+    primaryButton: {
+        backgroundColor: "#2563eb",
+        color: "white",
+    },
+    message: {
+        marginTop: 12,
+        fontWeight: "600",
+        color: "#2563eb",
+    },
+};
