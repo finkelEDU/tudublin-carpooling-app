@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
+import {NextResponse} from "next/server";
 import {connectDB} from "@/lib/db";
-import Chat from "@/models/Chat";
 import User from "@/models/User";
 import {cookies} from "next/headers";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 export async function POST(req){
     await connectDB();
@@ -19,19 +19,28 @@ export async function POST(req){
 
     try{
         decoded = jwt.verify(token, process.env.JWT_SECRET);
-    }catch{
+    }catch(err){
         return NextResponse.json({error: "Invalid session"}, {status: 401});
     }
 
-    const{message} = await req.json();
+    const reviewerId = decoded.id;
 
-    if(!message || message.trim() === ""){
-        return NextResponse.json({error: "Message required"}, {status: 400});
+    const{driverId, rating, comment} = await req.json();
+
+    if(!driverId || !rating){
+        return NextResponse.json({error: "Missing fields"}, {status: 400});
     }
 
-    await Chat.create({
-        user: decoded.id,
-        message
+    await User.updateOne(
+        {_id: new mongoose.Types.ObjectId(driverId)},
+        {
+        $push: {
+            reviews: {
+                reviewer: reviewerId,
+                rating,
+                comment
+            }
+        }
     });
 
     return NextResponse.json({success: true});

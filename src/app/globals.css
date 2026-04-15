@@ -97,6 +97,11 @@ gmp-map{
   background-color: #52a4e3;
 }
 
+ul{
+  list-style: none;
+  padding-left: 0;
+}
+
 .card2{
   border: 1px solid #000000;
   border-radius: 10px;
@@ -157,4 +162,116 @@ gmp-map{
 .scroll{
   height: 150px;
   overflow-y: auto;
+}
+
+.poolGroup{
+  max-width: 500px;
+  margin: 30px auto;
+  padding: 30px;
+  text-align: center;
+  background: #00364D;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px;
+  color: #52a4e3;
+  display: block;
+}
+
+poolGroup button{
+  background-color: #52a4e3;
+  padding: 10px 12px;
+  font-size: 24px;
+  font-family:Arial, Helvetica, sans-serif;
+  color: #333333;
+  border-radius: 10px;
+}
+
+.poolGroup label{
+  display: block;
+  padding-top: 10px;
+  font-size: 20px;
+  gap: 20px;
+}
+
+.search{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 20px;
+  background-color: #D4F1F6;
+  border-radius: 20px;
+}
+
+.search a{
+  font-size: 32px;
+  text-decoration: none;
+  color:#333333;
+  font-weight: bold;
+}
+
+.search h2{
+  color: red;
+  font-size: 40px;
+}
+
+.search select{
+  padding: 5px;
+}
+
+.profile{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile form{
+  display: block;
+  padding: 20px;
+  border-style: dashed;
+  border-radius: 10px;
+}
+
+.profile-form{
+  display: block;
+  margin-bottom: 16px;
+}
+
+.profile p{
+  margin-top: 1px;
+}
+
+.profile h2{
+  margin-bottom: 2px;
+  color:#004C6C;
+}
+
+.users h2{
+  font-size: 40px;
+  margin-bottom:px;
+}
+
+.users a{
+  text-decoration: none;
+  font-size: 20px;
+  margin-top: 0px;
+}
+
+.chat{
+  max-width: 600px;
+  margin: 2rem auto;
+  text-align: "center";
+  background-color: #149150;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.chat small{
+  float: right;
+}
+
+.chat img{
+  width: 32px;
+  height: 32px;
+  border-radius: 10%;
+  object-fit: cover;
+  border: 1px solid #ccc;
 }
