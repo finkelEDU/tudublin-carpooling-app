@@ -1,0 +1,22 @@
+export const LOCATIONS = [
+	"Blanchardstown",
+	"Finglas",
+	"Swords",
+	"Dublin City Centre",
+	"Clonee",
+	"Dunboyne",
+	"Summerhill",
+	"Dunshaughlin",
+	"Trim",
+	"Navan",
+	"Kells",
+	"Drogheda",
+	"Dundalk",
+	"Cavan",
+	"Wicklow",
+	"Cork",
+	"Kildare",
+	"Monaghan",
+	"Westmeath",
+	"Offaly"
+];
