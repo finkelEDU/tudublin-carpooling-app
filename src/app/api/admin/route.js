@@ -28,6 +28,10 @@ let communications = [
     { id: 1, message: "Welcome to the carpool app!", date: new DataTransfer().toISOString() },
 ]
 
+let rideRequests = [];
+
+let notifications = [];
+
 async function parseBody(request) {
     try {
         return await request.json();
@@ -192,6 +196,15 @@ function rateLimit(ip) {
 
 
 export async function GET(request) {
+    const url = new URL(request.url);
+    const pathname = url.pathname;
+
+    if (pathname === '/api/admin/rides') {
+        return NextResponse.json({ request: rideRequests });
+    }
+
+    return NextResponse.json({ message: "Unknown GET endpoint" }, { status: 404 });
+
     return handleGet(request);
     const authError = checkAuth(request);
     if (authError) return NextResponse.json({ error: authError}, { status: authError.status });
@@ -205,6 +218,25 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+    const url = new URL(request.url);
+    const pathname = url.pathname;
+
+    if (pathname === '/api/emergency/request') {
+        const body = await request.json();
+        const newRequest = {
+            id: Date.now().toString(),
+            user: "EmergencyUser",
+            pickup: "Current Location",
+            destination: "Nearest Hospital",
+            status: "pending",
+            timestamp: body.timestamp,
+        };
+        rideRequests.push(newRequest);
+        return NextResponse.json({ requestId: newRequest.id });
+    }
+
+    return NextResponse.json({ message: "Unknown POST endpoint" }, { status: 404 });
+
     return handlePost(request);
     const authError = checkAuth(request);
     if (authError) return NextResponse.json({ error: authError.error}, { status: authError.status });
@@ -240,6 +272,30 @@ export async function POST(request) {
 }
 
 export async function PUT(request) {
+    const url = new URL(request.url);
+    const pathname = url.pathname;
+
+    if (pathname.startsWith('/api/admin/create-ride/')) {
+        const id = pathname.split('/').pop();
+        const body = await request.json();
+        const { action } = body;
+
+        const index = rideRequests.findIndex(r => r.id === id);
+        if (index === -1) {
+            return NextResponse.json({ error: "Ride request not found"}, { status: 404 });
+        }
+
+        if (action === 'approve' || action === 'reject') {
+            rideRequests[index].status = action === 'approve' ? 'approved' : 'rejected';
+            notifications.push({ id: Date.now().toString(), message: `Ride request ${id} ${action}d.`});
+            return NextResponse.json({ success: true });
+        }
+
+        return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+    }
+
+    return NextResponse.json({ message: "Unknown PUT endpoint" }, { status: 404 });
+
     return handlePut(request);
         const authError = checkAuth(request);
         if (authError) return NextResponse.json({ error: authError.error }, { status: authError.status });
@@ -274,6 +330,8 @@ export async function PUT(request) {
 }
 
 export async function DELETE(request) {
+    return NextResponse.json({ message: "DELETE endpoint not implemented"}, { status: 501 });
+
     return handleDelete(request);
     const authError = checkAuth(request);
     if (authError) return NextResponse.json({ error: authError.error}, { status: authError.status });
