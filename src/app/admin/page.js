@@ -36,6 +36,8 @@ export default function AdminPage() {
     const [selectedUserIds, setSelectedUserIds] = useState(new setAudit());
     const [theme, setTheme] = useState("light");
     const [confirmModal, setConfirmModal] = useState({ visible: false, action: null, message: "" });
+    const [rideRequests, setRideRequests] = useState([]);
+    const [notifications, setNotifications] = useState([]);
 
     const canQuery = useMemo(() => token.trim().length >= 8, [token]);
 
@@ -118,6 +120,10 @@ export default function AdminPage() {
         window.addEventListener("keydown", handler);
         return () => window.removeEventListener("keydown", handler);
     }, [selectedUserIds]);
+
+    useEffect(() => {
+        fetchRideRequests();
+    }, []);
 
     async function fetchData() {
         setLoading(true);
@@ -209,6 +215,34 @@ export default function AdminPage() {
             setAudit(data.audit || []);
         } finally {
             setLoading(false);
+        }
+    }
+
+    async function fetchRideRequests() {
+        try{
+            const res = await fetch('/api/admin/rides');
+            if (res.ok) {
+                const data = await res.json();
+                setRideRequests(data.requests);
+            }
+        } catch (error) {
+            console.error("Failed to fetch ride requests", error);
+        }
+    }
+
+    async function handleRideRequest(id, action) {
+        try {
+            const res = await fetch(`/api/admin/rides/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action }),
+            });
+            if (res.ok) {
+                fetchRideRequests();
+                addNotification(`Ride request ${id} ${action}d.`);
+            }
+        } catch (error) {
+            console.error(`Failed to ${action} ride request`, error);
         }
     }
 
@@ -531,6 +565,42 @@ export default function AdminPage() {
                     </article>
                 </section>
 
+                <section style={{ marginTop: '2rem', padding: '1rem', border: '1px solid #ccc' }}>
+                    <h2>Carpool Ride Requests</h2>
+                    {rideRequests.length === 0 ? (
+                        <p>No ride requests at the moment.</p>
+                    ) : (
+                        <ul>
+                            {rideRequests.map(({ id, user, pickup, destination, status }) => (
+                                <li key={id} style={{ marginBottom: '1rem' }}>
+                                    <strong>{user}</strong> requests a ride from <em>{pickup}</em> to <em>{destination}</em>.
+                                    <br />
+                                    Status: <strong>{status}</strong>
+                                    {status === 'pending' && (
+                                        <>
+                                            <button onClick={() => handleRideRequest(id, 'approve')} style={{ marginLeft: '1rem' }}>Approve</button>
+                                            <button onClick={() => handleRideRequest(id, 'request')} style={{ marginLeft: '0.5rem'}}>Reject</button>
+                                        </>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </section>
+
+                <section style={{ marginTop: '2rem', padding: '1rem', border: '1px solid #ccc'}}>
+                    <h2>Notifications</h2>
+                    {notifications.length === 0 ? (
+                        <p>No new notifications,</p>
+                    ) : (
+                        <ul>
+                            {notifications.map(({ id, message }) => (
+                                <li key={id}>{message}</li>
+                            ))}
+                        </ul>
+                    )}
+                </section>
+
                 {confirmModal.visible && (
                 <div
                     role="dialog"
@@ -786,3 +856,7 @@ function demoAudit() {
         { id: "a3", action: "Role update", message: "User u4 promoted to admin.", level: "medium", ts: now - 1000 * 60 * 130 },
     ];
 }
+
+function addNotification(message) {
+    setNotifications((prev) => [...prev, { id: Date.now(), message }]);
+    }
