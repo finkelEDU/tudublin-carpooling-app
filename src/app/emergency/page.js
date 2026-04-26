@@ -133,6 +133,8 @@ export default function EmergencyPage() {
     const [location, setLocation] = useState("");
     const [details, setDetails] = useState("");
     const [useDeviceLocation, setUseDeviceLocation] = useState(true);
+    const [emergencyRideStatus, setEmergencyRideStatus] = useState(null);
+    const [emergencyRequestId, setEmergencyRequestId] = useState(null);
 
     const [status, setStatus] = useState( { state: "idle", message: "" });
 
@@ -161,6 +163,27 @@ export default function EmergencyPage() {
         };
     }, [useDeviceLocation]);
 
+    useEffect(() => {
+        if (!emergencyRequestId) return;
+
+        const interval = setInterval(async () => {
+            try {
+                const res = await fetch(`/api/emergency/status/${emergencyRequestId}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setEmergencyRideStatus(data.status);
+                    if (data.status === 'completed' || data.status === 'cancelled') {
+                        clearInterval(interval);
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch emergency ride status", error);
+            }
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [emergencyRequestId]);
+
     const canSubmit = useMemo(() => {
         return Boolean((name || "").trim()) && Boolean((phone || "").trim()) && Boolean((details || "").trim());
     }, [name, phone, details]);
@@ -180,6 +203,24 @@ export default function EmergencyPage() {
             setDetails("");
         } catch (err) {
             setStatus({ state: "danger", message: "Failed to send. Please try again or call emergency services." });
+        }
+    }
+
+    async function submitEmergencyRide() {
+        try {
+            const res = await fetch('/api/emergency/request', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ timestamps: new Data().toISOString() }),
+            });
+        if (res.ok) {
+            const data = await res.json();
+            setEmergencyRequestId(data.requestId);
+            setEmergencyRideStatus('requested');
+        }
+        } catch (error) {
+            console.error("Failed to submit emergency ride request", error);
+            setEmergencyRideStatus('error');
         }
     }
 
@@ -424,6 +465,16 @@ export default function EmergencyPage() {
                                 </div>
                             </div>
                         </aside>
+                    </section>
+
+                    <section style={{ marginTop: '2rem', padding: '1rem', border: '1px solid #ccc', backgroundColor: '#ffe6e6'}}>
+                        <h2>Quick Emergency Ride Request</h2>
+                        <button onClick={submitEmergencyRide} disabled={emergencyRideStatus === 'requested'}>
+                            {emergencyRideStatus === 'requested' ? 'Request Sent...' : 'Request Emergency Ride'}
+                        </button>
+                        {emergencyRideStatus && (
+                            <p>Status: <strong>{emergencyRideStatus}</strong></p>
+                        )}
                     </section>
 
                     <footer style={{ marginTop: 18, color: BLUE.mut2, fontSize: 12 }}>
