@@ -23,15 +23,14 @@ const DriverInfoSchema = new mongoose.Schema({
 });
 
 const UserSchema = new mongoose.Schema({
+	//supabase auth setup to link with supabase
+	supabase_id: {type: String, required: true, unique},
 	username: {
 		type: String,
 		required: true,
 		unique: true,
 	},
-	password: {
-		type: String,
-		required: true,
-	},
+	
 	email: {
 		type: String,
 		required: true,
@@ -52,16 +51,6 @@ const UserSchema = new mongoose.Schema({
 	},
 	
 	reviews: [ReviewSchema],
-	
-	isVerified: {
-		type: Boolean,
-		default: false
-	},
-	verificationToken: String,
-	verificationTokenExpires: Date,
-	
-	resetPasswordToken: String,
-	resetPasswordExpires: Date,
 	
 	driverInfo: [DriverInfoSchema]
 });
