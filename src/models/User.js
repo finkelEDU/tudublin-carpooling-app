@@ -24,7 +24,7 @@ const DriverInfoSchema = new mongoose.Schema({
 
 const UserSchema = new mongoose.Schema({
 	//supabase auth setup to link with supabase
-	supabase_id: {type: String, required: true, unique},
+	supabase_id: {type: String, required: true, unique: true},
 	username: {
 		type: String,
 		required: true,
