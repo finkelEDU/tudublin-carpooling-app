@@ -1,78 +1,84 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import {useState} from "react";
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
 
-export default function Login(){
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [message, setMessage] = useState("");
+  async function handleLogin(e) {
+    e.preventDefault();
+    setMessage("");
 
-    async function handleLogin(e){
-        e.preventDefault();
-        setMessage("");
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-        try{
-            const res = await fetch("/api/login", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({username, password}),
-            });
+      const data = await res.json();
 
-            const data = await res.json();
-
-            if(res.ok){
-                window.location.href = "/";
-            }else{
-                setMessage(data.error);
-            }
-        }catch(err){
-            setMessage("Something went wrong");
-        }
+      if (res.ok) {
+        window.location.href = "/";
+      } else {
+        setMessage(data.error);
+      }
+    } catch (err) {
+      setMessage("Something went wrong");
     }
+  }
 
-    return(
-        <div style={{maxWidth: 400, margin: "3rem auto", fontFamily: "sans-serif"}}>
-            <h1>Login</h1>
+  return (
+    <div style={{ maxWidth: 400, margin: "3rem auto" }}>
+      <Card>
+        <CardHeader>
+          <CardTitle>Login</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleLogin} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="you@email.com"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+              />
+            </div>
 
-            <form onSubmit={handleLogin} style={{display: "flex", flexDirection: "column", gap: "1rem"}}>
-                <input
-                    type="text"
-                    placeholder="Username"
-                    value={username}
-                    onChange={e => setUsername(e.target.value)}
-                    style={{padding: "0.5rem"}}
-                />
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+              />
+            </div>
 
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    style={{padding: "0.5rem"}}
-                />
+            <Button type="submit" className="w-full">Login</Button>
 
-                <button
-                    type="submit"
-                    style={{
-                        padding: "0.7rem",
-                        background: "black",
-                        color: "white",
-                        border: "none",
-                        cursor: "pointer",
-                    }}>
-                Login
-                </button>
-            </form>
-
-            <Link href="/forgot-password">Forgot password?</Link>
+            <Link href="/forgot-password" className="text-sm text-center">
+              Forgot password?
+            </Link>
 
             {message && (
-                <p style={{marginTop: "1rem", color: message.includes("success") ? "green" : "red" }}>
-                    {message}
-                </p>
+              <p className={message.includes("success") ? "text-green-500" : "text-red-500"}>
+                {message}
+              </p>
             )}
-        </div>
-    );
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

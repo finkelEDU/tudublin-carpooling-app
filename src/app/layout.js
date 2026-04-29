@@ -9,6 +9,7 @@ import LogoutButton from "./components/LogoutButton";
 import {connectDB} from "@/lib/db"
 import User from "@/models/User";
 import connectDb from "@/lib/connectDb";
+import {Inter} from 'next/font/google'
 
 export const metadata = {
   title: "TU Dublin Carpooling",
@@ -16,12 +17,17 @@ export const metadata = {
   
 };
 
+//font 
+  const inter = Inter( { subsets: ['latin'] });
+
+
+
 export default async function RootLayout({children}){
   const supabase = await createClient();
   const {data: {user: authUser} } = await supabase.auth.getUser();
   let user = null
 
-  if (authUser) {
+   if (authUser) {
     await connectDB();
     user = await User.findOne({ supabase_id: authUser.id}).lean()
   }
@@ -29,7 +35,7 @@ export default async function RootLayout({children}){
   return(
     <html lang="en">
 
-      <body>
+      <body className={inter.className}>
         <header>
           <nav style={{padding: "1rem", background: "#eee"}}>
             {user ? (
