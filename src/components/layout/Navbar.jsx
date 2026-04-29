@@ -19,6 +19,7 @@ export default function Navbar({ user }) {
             <Link className="nav-link" href="/search">Search</Link>
             <Link className="nav-link" href="/users">Users</Link>
             <Link className="nav-link" href="/chat">Chat</Link>
+            <Link className="nav-link" href="/rides">Rides</Link>
             {user && (
               <>
                 <Link className="nav-link" href="/pools">Pools</Link>
