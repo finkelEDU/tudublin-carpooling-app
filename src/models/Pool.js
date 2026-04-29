@@ -1,16 +1,34 @@
 import mongoose from "mongoose";
 
-const CarpoolSchema = new mongoose.Schema({
-    origin: String,
-    originLat: Number,
-    originLng: Number,
-    destination: String,
-    destinationLat: Number,
-    destinationLng: Number,
-    date: {type: Date, required: true, default: Date.now},
-    seatsAvailable: Number,
+const PoolSchema = new mongoose.Schema({
+	groupName:{
+		type: String,
+		required: true
+	},
+	location:{
+		type: String,
+		required: true
+	},
+	destination:{
+		type: String,
+		required: true
+	},
+	time:{
+		type: Date,
+		required: true
+	},
+	driver:{
+		type: mongoose.Schema.Types.ObjectId,
+		ref: "User",
+		required: true
+	},
+	members: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+	  default: []
+    }
+  ]
+});
 
-    
-}, {timestamps: true});
-
-export default mongoose.models.Carpool || mongoose.model("Carpool", CarpoolSchema);
+export default mongoose.models.Pool || mongoose.model("Pool", PoolSchema);
