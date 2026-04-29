@@ -1,7 +1,9 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 
-export async function middleware(request) {
+const protectedRoutes = ['/users', '/chat', '/pools', '/profile', '/rides/new', '/rides/my-rides']
+
+export async function proxy(request) {
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -21,10 +23,21 @@ export async function middleware(request) {
     }
   )
 
-  await supabase.auth.getUser()
+  const { data } = await supabase.auth.getClaims()
+  const user = data?.claims
+
+  const path = request.nextUrl.pathname
+  const isProtected = protectedRoutes.some(route => path.startsWith(route))
+
+  if (!user && isProtected) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
+  }
+
   return supabaseResponse
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)']
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)']
 }
