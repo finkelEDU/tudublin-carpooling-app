@@ -4,10 +4,11 @@ import Link from "next/link";
 import Script from "next/script";
 import Image from "next/image";
 import logo from "../images/carpool_logo.png";
-import {getSession} from "@/lib/session";
+import {createClient} from '@/lib/supabase/server'
 import LogoutButton from "./components/LogoutButton";
 import {connectDB} from "@/lib/db"
 import User from "@/models/User";
+import connectDb from "@/lib/connectDb";
 
 export const metadata = {
   title: "TU Dublin Carpooling",
@@ -16,24 +17,24 @@ export const metadata = {
 };
 
 export default async function RootLayout({children}){
-  const session = await getSession();
-  let user = null;
+  const supabase = await createClient();
+  const {data: {user: authUser} } = await supabase.auth.getUser();
+  let user = null
 
-  if(session){
+  if (authUser) {
     await connectDB();
-    user = await User.findById(session.id).lean();
+    user = await User.findOne({ supabase_id: authUser.id}).lean()
   }
-
-
+  
   return(
     <html lang="en">
 
       <body>
         <header>
           <nav style={{padding: "1rem", background: "#eee"}}>
-            {session ? (
+            {user ? (
               <div>
-                Logged in as <strong>{session.username}</strong>
+                Logged in as <strong>{user.username}</strong>
               </div>
             ) : (
               <div>Not logged in</div>
