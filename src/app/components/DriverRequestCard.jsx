@@ -1,5 +1,9 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+
 export default function DriverRequestCard({ request }) {
   async function handleAccept() {
     try {
@@ -22,17 +26,20 @@ export default function DriverRequestCard({ request }) {
   }
 
   return (
-    <div style={{ border: "1px solid #ccc", padding: "1rem", marginBottom: "1rem" }}>
-      <p><b>Student:</b> {request.student.username}</p>
-      <p><b>From:</b> {request.location}</p>
-      <p><b>To:</b> {request.destination}</p>
-      <p><b>Time:</b> {request.time}</p>
-
-      {request.status === "accepted" ? (
-        <p style={{ color: "green", fontWeight: "bold" }}>Accepted by driver</p>
-      ) : (
-        <button onClick={handleAccept}>Accept Request</button>
-      )}
-    </div>
+    <Card>
+      <CardContent className="space-y-1 text-sm pt-6">
+        <p><span className="font-medium">Student:</span> {request.student.username}</p>
+        <p><span className="font-medium">From:</span> {request.location}</p>
+        <p><span className="font-medium">To:</span> {request.destination}</p>
+        <p><span className="font-medium">Time:</span> {request.time}</p>
+      </CardContent>
+      <CardFooter>
+        {request.status === "accepted" ? (
+          <Badge variant="secondary">Accepted</Badge>
+        ) : (
+          <Button onClick={handleAccept}>Accept Request</Button>
+        )}
+      </CardFooter>
+    </Card>
   );
 }

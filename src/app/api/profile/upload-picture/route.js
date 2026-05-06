@@ -1,50 +1,38 @@
-import {NextResponse} from "next/server";
-import {writeFile} from "fs/promises";
-import path from "path";
-import {connectDB} from "@/lib/db";
-import User from "@/models/User";
-import {cookies} from "next/headers";
-import jwt from "jsonwebtoken";
+import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { connectDB } from '@/lib/db'
+import User from '@/models/User'
+import { getMongoUser } from '@/lib/getMongoUser'
 
-export async function POST(req){
-    const cookieStore = await cookies();
-    const token = cookieStore.get("session")?.value;
+export async function POST(req) {
+  const user = await getMongoUser()
+  if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-    if(!token){
-        return NextResponse.json({error: "Not logged in"}, {status: 401});
-    }
+  const formData = await req.formData()
+  const file = formData.get('profilePic')
 
-    let decoded;
-    try{
-        decoded = jwt.verify(token, process.env.JWT_SECRET);
-    }catch(err){
-        return NextResponse.json({error: "Invalid session"}, {status: 401});
-    }
+  if (!file) return Response.json({ error: 'No file provided' }, { status: 400 })
 
-    const userId = decoded.id;
+  const bytes = await file.arrayBuffer()
+  const buffer = Buffer.from(bytes)
 
-    const formData = await req.formData();
-    const file = formData.get("profilePic");
+  const fileExt = file.name.split('.').pop()
+  const fileName = `${user.supabase_id}.${fileExt}`
 
-    if(!file){
-        return NextResponse.json({error: "No file uploaded"}, {status: 400});
-    }
+  const supabase = await createClient()
+  const { error: uploadError } = await supabase.storage
+    .from('carpool_avatars')
+    .upload(fileName, buffer, {
+      contentType: file.type,
+      upsert: true,
+    })
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+  if (uploadError) return Response.json({ error: uploadError.message }, { status: 500 })
 
-    const fileName = `${Date.now()}-${file.name}`;
-    const filePath = path.join(process.cwd(), "public/uploads", fileName);
-    
-    
-    await writeFile(filePath, buffer);
+  const { data } = supabase.storage.from('carpool_avatars').getPublicUrl(fileName)
 
-    await connectDB();
+  await connectDB()
+  await User.findByIdAndUpdate(user._id, { profilePic: data.publicUrl })
 
-    await User.findByIdAndUpdate(userId, {
-        profilePic: `/uploads/${fileName}`
-    });
-
-    const origin = req.nextUrl.origin;
-    return NextResponse.redirect(`${origin}/profile`);
+  return NextResponse.redirect(new URL('/profile', req.url), { status: 303 })
 }

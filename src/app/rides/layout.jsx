@@ -4,7 +4,7 @@ import Link from "next/link"
 export default function RidesLayout({ children }) {
   return (
     <MapsProvider>
-      <nav className="border-b bg-white px-6 py-3 flex gap-6">
+      <nav className="border-b bg-card px-6 py-3 flex gap-6">
         <Link href="/rides" className="text-sm font-medium hover:text-primary transition-colors">
           Browse rides
         </Link>

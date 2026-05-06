@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { bookRide, cancelBooking, confirmBooking, declineBooking, deleteRide, completeRide } from "./actions"
 import DeleteRideButton from "@/components/rides/DeleteRideButton"
 import RouteMap from "@/components/rides/RouteMap"
+import RideDetailRealtime from "@/components/RideDetailRealtime"
 
 export default async function RideDetailPage({ params }) {
   const { id } = await params
@@ -22,7 +23,7 @@ export default async function RideDetailPage({ params }) {
     user
       ? supabase.from("bookings").select("id, status").eq("ride_id", id).eq("passenger_id", user.id).in("status", ["pending", "confirmed", "declined"]).maybeSingle()
       : Promise.resolve({ data: null }),
-    supabase.from("bookings").select("id, status, seats_booked, passenger_id").eq("ride_id", id).neq("status", "cancelled").order("created_at", { ascending: true }),
+    supabase.from("bookings").select("id, status, seats_booked, passenger_id, pickup_location").eq("ride_id", id).neq("status", "cancelled").order("created_at", { ascending: true }),
   ])
 
   if (!ride) notFound()
@@ -43,6 +44,7 @@ export default async function RideDetailPage({ params }) {
 
   return (
     <div className="p-6 max-w-lg mx-auto mt-10">
+      <RideDetailRealtime rideId={id} isDriver={isDriver} />
       <h1 className="text-2xl font-bold mb-1">
         {ride.origin}{ride.origin_eircode ? ` · ${ride.origin_eircode}` : ""} → {ride.destination}{ride.destination_eircode ? ` · ${ride.destination_eircode}` : ""}
       </h1>
@@ -50,7 +52,7 @@ export default async function RideDetailPage({ params }) {
         {format(new Date(ride.departure_at), "PPP 'at' p")}
       </p>
 
-      <div className="border rounded-xl p-5 flex flex-col gap-3 mb-6 bg-white">
+      <div className="border rounded-xl p-5 flex flex-col gap-3 mb-6 bg-card">
         <Row label="Driver" value={driver?.username ?? "Unknown"} />
         <Row label="Seats available" value={`${ride.seats_available} of ${ride.seats_total}`} />
         <Row label="Status" value={ride.status} />
@@ -78,14 +80,26 @@ export default async function RideDetailPage({ params }) {
       {!isDriver && !alreadyBooked && (
         <form action={bookRideWithId} className="flex flex-col gap-3">
           {!isFull && (
-            <div className="flex items-center justify-between text-sm">
-              <label htmlFor="seats_booked" className="text-muted-foreground">Seats</label>
-              <select id="seats_booked" name="seats_booked" defaultValue="1" className="border rounded-md px-2 py-1 text-sm bg-background">
-                {Array.from({ length: ride.seats_available }, (_, i) => i + 1).map((n) => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-              </select>
-            </div>
+            <>
+              <div className="flex items-center justify-between text-sm">
+                <label htmlFor="seats_booked" className="text-muted-foreground">Seats</label>
+                <select id="seats_booked" name="seats_booked" defaultValue="1" className="border rounded-md px-2 py-1 text-sm bg-background">
+                  {Array.from({ length: ride.seats_available }, (_, i) => i + 1).map((n) => (
+                    <option key={n} value={n}>{n}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col gap-1 text-sm">
+                <label htmlFor="pickup_location" className="text-muted-foreground">Pickup location <span className="text-xs">(optional)</span></label>
+                <input
+                  id="pickup_location"
+                  name="pickup_location"
+                  type="text"
+                  placeholder={`Different from ${ride.origin}?`}
+                  className="border rounded-md px-3 py-1.5 text-sm bg-background"
+                />
+              </div>
+            </>
           )}
           <Button className="w-full" disabled={isFull}>
             {isFull ? "Fully booked" : "Book this ride"}
@@ -99,6 +113,18 @@ export default async function RideDetailPage({ params }) {
             <p className="font-medium text-red-800">Booking declined</p>
             <p className="text-red-700 mt-0.5">The driver declined your request. You can request again below.</p>
           </div>
+          {!isFull && (
+            <div className="flex flex-col gap-1 text-sm">
+              <label htmlFor="pickup_location_retry" className="text-muted-foreground">Pickup location <span className="text-xs">(optional)</span></label>
+              <input
+                id="pickup_location_retry"
+                name="pickup_location"
+                type="text"
+                placeholder={`Different from ${ride.origin}?`}
+                className="border rounded-md px-3 py-1.5 text-sm bg-background"
+              />
+            </div>
+          )}
           <Button className="w-full" disabled={isFull}>{isFull ? "Fully booked" : "Request again"}</Button>
         </form>
       )}
@@ -137,12 +163,15 @@ export default async function RideDetailPage({ params }) {
               {bookings.map((booking) => {
                 const passenger = passengerMap[booking.passenger_id]
                 return (
-                  <li key={booking.id} className="border rounded-xl px-4 py-3 flex items-center justify-between gap-4 bg-white">
+                  <li key={booking.id} className="border rounded-xl px-4 py-3 flex items-center justify-between gap-4 bg-card">
                     <div>
                       <p className="font-medium">{passenger?.username ?? "Unknown"}</p>
                       <p className="text-sm text-muted-foreground">
                         {booking.seats_booked} seat{booking.seats_booked !== 1 ? "s" : ""} · <span className="capitalize">{booking.status}</span>
                       </p>
+                      {booking.pickup_location && (
+                        <p className="text-sm text-muted-foreground mt-0.5">Pickup: {booking.pickup_location}</p>
+                      )}
                     </div>
                     {booking.status === "pending" && (
                       <div className="flex gap-2">

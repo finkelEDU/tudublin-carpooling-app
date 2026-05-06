@@ -1,47 +1,20 @@
-import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
-import Pool from "@/models/Pool";
-import User from "@/models/User";
-import { cookies } from "next/headers";
-import { verifyToken } from "@/lib/auth";
-import mongoose from "mongoose";
+import { NextResponse } from "next/server"
+import { connectDB } from "@/lib/db"
+import Pool from "@/models/Pool"
+import { getMongoUser } from "@/lib/getMongoUser"
 
 export async function POST(req) {
-  await connectDB();
+  await connectDB()
 
-  const cookieStore = await cookies();
-  const token = cookieStore.get("session")?.value;
+  const user = await getMongoUser()
+  if (!user) return NextResponse.json({ error: "Not logged in" }, { status: 401 })
 
-  if (!token) {
-    return NextResponse.json({ error: "Not logged in" }, { status: 401 });
-  }
+  const { poolId } = await req.json()
 
-  const session = verifyToken(token);
-  const user = await User.findById(session.id);
-
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
-
-  if (user.userType !== "Student") {
-    return NextResponse.json({ error: "Only students can join" }, { status: 403 });
-  }
-
-  const { poolId } = await req.json();
-
-  console.log("JOIN REQUEST:", poolId, user._id);
-
-  const updated = await Pool.findByIdAndUpdate(
+  await Pool.findByIdAndUpdate(
     poolId,
-    {
-      $addToSet: {
-        members: user._id,
-      },
-    },
-    { new: true }
-  );
+    { $addToSet: { members: user._id } }
+  )
 
-  console.log("UPDATED POOL:", updated);
-
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true })
 }

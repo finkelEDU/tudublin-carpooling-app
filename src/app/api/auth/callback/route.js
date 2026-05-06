@@ -8,19 +8,27 @@ export async function GET(request) {
   const code = searchParams.get('code')
 
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.exchangeCodeForSession(code)
+  const { data: { session }, error: sessionError } = await supabase.auth.exchangeCodeForSession(code)
+
+  if (sessionError || !session) {
+    return NextResponse.redirect(`${origin}/login?error=verification_failed`)
+  }
+
   const user = session.user
 
   await connectDB()
 
   const existing = await User.findOne({ supabase_id: user.id })
   if (!existing) {
-    await User.create({
-      supabase_id: user.id,
-      email: user.email,
-      username: user.user_metadata.username,
-      userType: user.user_metadata.userType,
-    })
+    const username = user.user_metadata.username
+    const userType = user.user_metadata.userType
+
+    if (username && userType) {
+      await User.create({ supabase_id: user.id, email: user.email, username, userType })
+    } else {
+      // OAuth user — no username/userType yet, send to onboarding
+      return NextResponse.redirect(`${origin}/onboarding`)
+    }
   }
 
   return NextResponse.redirect(`${origin}/`)

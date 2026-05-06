@@ -1,33 +1,23 @@
-import { NextResponse } from "next/server";
-import {cookies} from "next/headers";
-import {verifyToken} from "@/lib/auth";
-import {connectDB} from "@/lib/db";
-import User from "@/models/User";
+import { NextResponse } from "next/server"
+import { connectDB } from "@/lib/db"
+import User from "@/models/User"
+import { getMongoUser } from "@/lib/getMongoUser"
 
-export async function POST(req){
-    try{
-        const cookieStore = await cookies();
-        const token = cookieStore.get("session")?.value;
+export async function POST(req) {
+  try {
+    const user = await getMongoUser()
+    if (!user) return NextResponse.redirect(new URL("/login", req.url), { status: 303})
 
-        if(!token){
-            return NextResponse.redirect(new URL("/login", req.url));
-        }
+    await connectDB()
 
-        const session = verifyToken(token);
-        if(!session){
-            return NextResponse.redirect(new URL("/login", req.url));
-        }
+    const formData = await req.formData()
+    const about = formData.get("about")
 
-        await connectDB();
+    await User.findByIdAndUpdate(user._id, { about })
 
-        const formData = await req.formData();
-        const about = formData.get("about");
-
-        await User.findByIdAndUpdate(session.id, {about});
-
-        return NextResponse.redirect(new URL("/profile", req.url));
-    }catch(error){
-        console.error("Error:", error);
-        return NextResponse.json({error: "Failed to update about"}, {status: 500});
-}
+    return NextResponse.redirect(new URL("/profile", req.url))
+  } catch (error) {
+    console.error("Error:", error)
+    return NextResponse.json({ error: "Failed to update about" }, { status: 500 })
+  }
 }

@@ -1,6 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useMap } from "react-leaflet";
+
+function FlyTo({ pin }) {
+  const map = useMap();
+  useEffect(() => {
+    if (pin) map.flyTo([pin.lat, pin.lng], 13, { duration: 1.2 });
+  }, [pin]);
+  return null;
+}
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
@@ -17,6 +26,11 @@ const requestIcon = new L.Icon({
 const collegeIcon = new L.Icon({
   iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
   iconSize: [32, 32],
+});
+
+const searchIcon = new L.Icon({
+  iconUrl: "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png",
+  iconSize: [40, 40],
 });
 
 /* -----------------------------
@@ -63,7 +77,7 @@ const LOCATION_COORDS = {
   Offaly: [53.273, -7.492],
 };
 
-export default function Map({ pools = [], requests = [] }) {
+export default function Map({ pools = [], requests = [], searchPin = null }) {
   const [map, setMap] = useState(null);
 
   useEffect(() => {
@@ -95,6 +109,8 @@ export default function Map({ pools = [], requests = [] }) {
       zoom={8}
       style={{ height: "500px", width: "100%" }}
     >
+      <FlyTo pin={searchPin} />
+
       {/* BASE MAP */}
       <TileLayer
         attribution="&copy; OpenStreetMap"
@@ -102,7 +118,7 @@ export default function Map({ pools = [], requests = [] }) {
       />
 
       {/* 🏫 COLLEGE */}
-      <Marker position={[53.404, -6.38]}>
+      <Marker position={[53.404, -6.38]} icon={collegeIcon}>
         <Popup>
           <b>College</b>
           <br />
@@ -110,13 +126,20 @@ export default function Map({ pools = [], requests = [] }) {
         </Popup>
       </Marker>
 
+      {/* 📍 SEARCH PIN */}
+      {searchPin && (
+        <Marker position={[searchPin.lat, searchPin.lng]} icon={searchIcon}>
+          <Popup><b>{searchPin.label}</b></Popup>
+        </Marker>
+      )}
+
       {/* 🚗 POOL GROUPS */}
       {pools.map((pool) => {
         const coords = LOCATION_COORDS[pool.location?.trim()];
         if (!coords) return null;
 
         return (
-          <Marker key={pool._id} position={coords}>
+          <Marker key={pool._id} position={coords} icon={poolIcon}>
             <Popup>
               <b>Pool Group</b>
               <br />

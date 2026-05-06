@@ -6,6 +6,15 @@ import Pool from "@/models/Pool";
 import PoolRequest from "@/models/PoolRequest";
 import JoinPoolButton from "../components/JoinPoolButton";
 import DriverRequestCard from "../components/DriverRequestCard";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 
 export default async function Pools() {
   const session = await getSession();
@@ -15,13 +24,12 @@ export default async function Pools() {
   let user = null;
 
   if (session) {
-    user = await User.findById(session.id).lean();
+    user = await User.findOne({ supabase_id: session.id }).lean();
     if (user?._id) user._id = user._id.toString();
   }
 
   const userId = user?._id;
 
-  // Fetch pools
   const pools = await Pool.find()
     .populate("driver", "username")
     .populate("members", "username")
@@ -34,10 +42,7 @@ export default async function Pools() {
     destination: pool.destination,
     time: pool.time ? new Date(pool.time).toLocaleString("en-IE") : "N/A",
     driver: pool.driver
-      ? {
-          _id: pool.driver._id?.toString(),
-          username: pool.driver.username,
-        }
+      ? { _id: pool.driver._id?.toString(), username: pool.driver.username }
       : null,
     members: (pool.members || []).map((m) => ({
       _id: m._id.toString(),
@@ -45,7 +50,6 @@ export default async function Pools() {
     })),
   }));
 
-  // Fetch pool requests
   const requests = await PoolRequest.find()
     .populate("student", "username")
     .lean();
@@ -62,121 +66,121 @@ export default async function Pools() {
     },
   }));
 
-  // Filter pools where the user is the driver
-  const driverPools =
-    user?.userType === "Driver"
-      ? safePools.filter((p) => p.driver?._id === userId)
-      : [];
-
   return (
-    <div>
-      <h1>Pool Groups</h1>
+    <div className="max-w-4xl mx-auto space-y-10">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Pool Groups</h1>
+        {user?.userType === "Driver" && (
+          <Button asChild>
+            <Link href="/createPool">Create Pool Group</Link>
+          </Button>
+        )}
+      </div>
 
-      {/* Only drivers can create pool groups */}
-      {user?.userType === "Driver" && (
-        <Link href="/createPool">
-          <button>Create Pool Group</button>
-        </Link>
-      )}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold">Available Pools</h2>
 
-      <h2>Available Pools</h2>
-      {safePools.length === 0 && <p>No pools available</p>}
+        {safePools.length === 0 ? (
+          <p className="text-muted-foreground">No pools available.</p>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {safePools.map((pool) => {
+              const isJoined = userId
+                ? pool.members.some((m) => m._id === userId)
+                : false;
 
-      <ul>
-        {safePools.map((pool) => {
-          const isJoined = userId
-            ? pool.members.some((m) => m._id === userId)
-            : false;
+              return (
+                <Card key={pool._id}>
+                  <CardHeader>
+                    <CardTitle>{pool.groupName}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-1 text-sm">
+                    <p>
+                      <span className="font-medium">Driver:</span>{" "}
+                      {pool.driver?.username || "Unknown"}
+                    </p>
+                    <p>
+                      <span className="font-medium">From:</span> {pool.location}
+                    </p>
+                    <p>
+                      <span className="font-medium">To:</span> {pool.destination}
+                    </p>
+                    <p>
+                      <span className="font-medium">Time:</span> {pool.time}
+                    </p>
+                    <p>
+                      <span className="font-medium">Members:</span>{" "}
+                      {pool.members.length === 0
+                        ? "None"
+                        : pool.members.map((m) => m.username).join(", ")}
+                    </p>
+                  </CardContent>
+                  {userId && pool.driver?._id !== userId && (
+                    <CardFooter>
+                      {isJoined ? (
+                        <Badge variant="secondary">Joined</Badge>
+                      ) : (
+                        <JoinPoolButton poolId={pool._id} />
+                      )}
+                    </CardFooter>
+                  )}
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </section>
 
-          return (
-            <li key={pool._id} style={{ marginBottom: "1rem" }}>
-              <h3>{pool.groupName}</h3>
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">Student Pool Requests</h2>
+          {user?.userType === "Student" && (
+            <Button asChild variant="outline">
+              <Link href="/createPoolRequest">Create Pool Request</Link>
+            </Button>
+          )}
+        </div>
 
-              <p>
-                <b>Driver:</b> {pool.driver?.username || "Unknown"}
-              </p>
-
-              <p>
-                <b>From:</b> {pool.location}
-              </p>
-
-              <p>
-                <b>To:</b> {pool.destination}
-              </p>
-
-              <p>
-                <b>Time:</b> {pool.time}
-              </p>
-
-              <p>
-                <b>Members:</b>{" "}
-                {pool.members.length === 0
-                  ? "None"
-                  : pool.members.map((m) => m.username).join(", ")}
-              </p>
-
-              {/* Students can join pools they haven't joined */}
-              {user?.userType === "Student" &&
-                !isJoined &&
-                <JoinPoolButton poolId={pool._id} />
-              }
-
-              {/* Students see "Joined" if already in pool */}
-              {user?.userType === "Student" &&
-                isJoined && (
-                  <p style={{ color: "green", fontWeight: "bold" }}>
-                    Joined
+        {safeRequests.length === 0 ? (
+          <p className="text-muted-foreground">No requests.</p>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {safeRequests.map((r) => (
+              <Card key={r._id}>
+                <CardContent className="space-y-1 text-sm pt-6">
+                  <p>
+                    <span className="font-medium">Student:</span>{" "}
+                    {r.student.username}
                   </p>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+                  <p>
+                    <span className="font-medium">From:</span> {r.location}
+                  </p>
+                  <p>
+                    <span className="font-medium">To:</span> {r.destination}
+                  </p>
+                  <p>
+                    <span className="font-medium">Time:</span> {r.time}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </section>
 
-      {/* Only students can create pool requests */}
-      {user?.userType === "Student" && (
-        <Link href="/createPoolRequest">
-          <button>Create Pool Request</button>
-        </Link>
-      )}
-
-      <h2>Student Pool Requests</h2>
-      {safeRequests.length === 0 && <p>No requests</p>}
-
-      <ul>
-        {safeRequests.map((r) => (
-          <li key={r._id} style={{ marginBottom: "1rem" }}>
-            <p>
-              <b>Student:</b> {r.student.username}
-            </p>
-            <p>
-              <b>From:</b> {r.location}
-            </p>
-            <p>
-              <b>To:</b> {r.destination}
-            </p>
-            <p>
-              <b>Time:</b> {r.time}
-            </p>
-          </li>
-        ))}
-      </ul>
-
-      {/* Only drivers see incoming requests */}
       {user?.userType === "Driver" && (
-        <>
-          <h2>Incoming Requests</h2>
-
-          {safeRequests.length === 0 && <p>No requests</p>}
-
-          {safeRequests.map((r) => (
-            <DriverRequestCard
-              key={r._id}
-              request={r}
-              driverId={user._id} // Pass driverId for accept action
-            />
-          ))}
-        </>
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold">Incoming Requests</h2>
+          {safeRequests.length === 0 ? (
+            <p className="text-muted-foreground">No requests.</p>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {safeRequests.map((r) => (
+                <DriverRequestCard key={r._id} request={r} driverId={userId} />
+              ))}
+            </div>
+          )}
+        </section>
       )}
     </div>
   );

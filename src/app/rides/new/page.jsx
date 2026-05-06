@@ -91,7 +91,7 @@ export default function NewRidePage() {
   return (
     <div className="flex min-h-screen items-start justify-center pt-16">
       <Toaster />
-      <div className="border rounded-xl p-8 max-w-md w-full bg-white">
+      <div className="border rounded-xl p-8 max-w-md w-full bg-card">
         <Link href="/rides" className="text-sm text-muted-foreground hover:underline mb-4 inline-block">← Back to rides</Link>
         <h1 className="text-2xl font-bold mb-6">Post a ride</h1>
 

@@ -7,10 +7,10 @@ const Map = dynamic(() => import("./Map"), {
   loading: () => <p>Loading map...</p>,
 });
 
-export default function MapClient({ pools, requests }) {
+export default function MapClient({ pools, requests, searchPin }) {
   return (
     <div style={{ height: "500px", width: "100%" }}>
-      <Map pools={pools} requests={requests} />
+      <Map pools={pools} requests={requests} searchPin={searchPin} />
     </div>
   );
 }

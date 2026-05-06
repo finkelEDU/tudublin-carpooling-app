@@ -1,25 +1,7 @@
-import {cookies} from "next/headers";
-import {verifyToken} from "@/lib/auth";
-import {connectDB} from "@/lib/db";
-import User from "@/models/User";
+import { getMongoUser } from "@/lib/getMongoUser";
 
 export default async function Profile(){
-    const cookieStore = await cookies();
-    const token = cookieStore.get("session")?.value;
-
-    const session = token ? verifyToken(token) : null;
-
-    if(!session){
-        return(
-            <div>
-                <h1>Not authenticated</h1>
-                <p>You must login to view this page.</p>
-            </div>
-        );
-    }
-
-    await connectDB();
-    const user = await User.findById(session.id).lean();
+    const user = await getMongoUser();
 
     if(!user){
         return(

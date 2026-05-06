@@ -6,7 +6,6 @@
 
 body{
   margin: 0;
-  background-color: #4EA8C2;
 }
 
 header{
@@ -102,10 +101,6 @@ gmp-map{
   background-color: #52a4e3;
 }
 
-ul{
-  list-style: none;
-  padding-left: 0;
-}
 
 .card2{
   border: 1px solid #000000;
@@ -281,59 +276,6 @@ poolGroup button{
   border: 1px solid #ccc;
 }
 
-h1, h2 {
-  color: #00364D;
-  text-align: center;
-}
-
-ul {
-  list-style: none;
-  padding-left: 0;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-li {
-  background: #D4F1F6;
-  border: 1px solid #00364D;
-  border-radius: 12px;
-  padding: 15px;
-  margin-bottom: 15px;
-  box-shadow: 3px 3px 8px rgba(0,0,0,0.15);
-  max-width: 800px;
-  margin: 15px auto;
-}
-
-li b {
-  color: #00364D;
-}
-
-button:not([class*="inline-flex"]) {
-  background-color: #00364D;
-  color: #B8E5ED;
-  border: none;
-  padding: 10px 16px;
-  margin-top: 10px;
-
-  border-radius: 8px;
-  cursor: pointer;
-
-  font-weight: bold;
-  font-size: 14px;
-
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-
-  transition: 0.2s ease;
-  box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
-}
-
-button:hover {
-  background-color: #185769;
-  color: #00364D;
-  transform: scale(1.05);
-}
 
 p[style*="green"] {
   background: #d4f8d4;
@@ -349,11 +291,6 @@ p[style*="green"] {
   padding: 12px;
 }
 
-h2 {
-  border-bottom: 2px solid #4EA8C2;
-  padding-bottom: 5px;
-  margin-top: 30px;
-}
 
 a button {
   text-decoration: none;

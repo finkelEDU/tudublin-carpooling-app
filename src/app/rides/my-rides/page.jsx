@@ -51,7 +51,7 @@ export default async function MyRidesPage() {
               const pending = ride.bookings.filter(b => b.status === "pending").length
               const filled = ride.seats_total - ride.seats_available
               return (
-                <li key={ride.id} className="border rounded-xl px-4 py-3 bg-white hover:shadow-md transition-all">
+                <li key={ride.id} className="border rounded-xl px-4 py-3 bg-card hover:shadow-md transition-all">
                   <div className="flex items-start justify-between gap-4">
                     <Link href={`/rides/${ride.id}`} className="flex-1 min-w-0">
                       <p className="font-medium">
@@ -94,7 +94,7 @@ export default async function MyRidesPage() {
               const filled = ride.seats_total - ride.seats_available
               const canComplete = ride.status === "active" || ride.status === "full"
               return (
-                <li key={ride.id} className={`border rounded-xl px-4 py-3 bg-white ${canComplete ? "" : "opacity-50"}`}>
+                <li key={ride.id} className={`border rounded-xl px-4 py-3 bg-card ${canComplete ? "" : "opacity-50"}`}>
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="font-medium">

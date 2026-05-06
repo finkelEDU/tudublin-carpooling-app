@@ -1,6 +1,9 @@
 "use client"
 
 import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { FcGoogle } from "react-icons/fc";
+import { FaGithub } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,10 +16,20 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [userType, setUserType] = useState("Student");
   const [message, setMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
+  const supabase = createClient();
+
+  async function handleOAuth(provider) {
+    await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: `${window.location.origin}/api/auth/callback` },
+    });
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setMessage("");
+    setIsSuccess(false);
 
     const res = await fetch("/api/signup", {
       method: "POST",
@@ -27,7 +40,8 @@ export default function Signup() {
     const data = await res.json();
 
     if (res.ok) {
-      window.location.href = "/login";
+      setIsSuccess(true);
+      setMessage("Account created! Check your email to verify your account before logging in.");
     } else {
       setMessage(data.error || "Something went wrong");
     }
@@ -88,12 +102,29 @@ export default function Signup() {
             <Button type="submit" className="w-full">Create Account</Button>
 
             {message && (
-              <p className="text-red-500 text-sm text-center">{message}</p>
+              <p className={`text-sm text-center ${isSuccess ? "text-green-600" : "text-red-500"}`}>{message}</p>
             )}
           </form>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs text-muted-foreground">
+              <span className="bg-card px-2">or sign up with</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Button type="button" variant="outline" className="w-full gap-2" onClick={() => handleOAuth("google")}>
+              <FcGoogle size={18} /> Google
+            </Button>
+            <Button type="button" variant="outline" className="w-full gap-2" onClick={() => handleOAuth("github")}>
+              <FaGithub size={18} /> GitHub
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
   );
 }
-

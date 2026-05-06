@@ -45,6 +45,7 @@ export async function bookRide(rideId, formData) {
   if (!user) redirect("/login")
 
   const seats = Math.max(1, parseInt(formData.get("seats_booked")) || 1)
+  const pickup_location = formData.get("pickup_location")?.toString().trim() || null
 
   const { data: existing } = await supabase
     .from("bookings")
@@ -56,13 +57,13 @@ export async function bookRide(rideId, formData) {
   if (existing && existing.status !== "pending" && existing.status !== "confirmed") {
     const { error } = await supabase
       .from("bookings")
-      .update({ status: "pending", seats_booked: seats })
+      .update({ status: "pending", seats_booked: seats, pickup_location })
       .eq("id", existing.id)
     if (error) throw new Error(error.message)
   } else if (!existing) {
     const { error } = await supabase
       .from("bookings")
-      .insert({ ride_id: rideId, passenger_id: user.id, seats_booked: seats })
+      .insert({ ride_id: rideId, passenger_id: user.id, seats_booked: seats, pickup_location })
     if (error) throw new Error(error.message)
   }
 

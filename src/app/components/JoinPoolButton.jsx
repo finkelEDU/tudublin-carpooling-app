@@ -1,21 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function JoinPoolButton({ poolId }) {
   const [loading, setLoading] = useState(false);
 
   async function joinPool() {
     setLoading(true);
-
     const res = await fetch("/api/pool/join", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ poolId }),
     });
-
     setLoading(false);
 
     if (res.ok) {
@@ -27,8 +24,8 @@ export default function JoinPoolButton({ poolId }) {
   }
 
   return (
-    <button onClick={joinPool} disabled={loading}>
+    <Button onClick={joinPool} disabled={loading}>
       {loading ? "Joining..." : "Join Pool"}
-    </button>
+    </Button>
   );
 }

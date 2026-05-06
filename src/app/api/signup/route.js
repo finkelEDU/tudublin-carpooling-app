@@ -14,7 +14,8 @@ export async function POST(req) {
     email,
     password,
     options: {
-      data: { username, userType }
+      data: { username, userType },
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/callback`,
     }
   })
 
