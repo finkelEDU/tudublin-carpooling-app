@@ -8,9 +8,11 @@ import { connectDB } from "@/lib/db"
 import User from "@/models/User"
 import { Button } from "@/components/ui/button"
 import { bookRide, cancelBooking, confirmBooking, declineBooking, deleteRide, completeRide } from "./actions"
+import { Navigation } from "lucide-react"
 import DeleteRideButton from "@/components/rides/DeleteRideButton"
 import RouteMap from "@/components/rides/RouteMap"
 import RideDetailRealtime from "@/components/RideDetailRealtime"
+import PickupAutocomplete from "@/components/rides/PickupAutocomplete"
 
 export default async function RideDetailPage({ params }) {
   const { id } = await params
@@ -100,13 +102,7 @@ export default async function RideDetailPage({ params }) {
               </div>
               <div className="flex flex-col gap-1 text-sm">
                 <label htmlFor="pickup_location" className="text-muted-foreground">Pickup location <span className="text-xs">(optional)</span></label>
-                <input
-                  id="pickup_location"
-                  name="pickup_location"
-                  type="text"
-                  placeholder={`Different from ${ride.origin}?`}
-                  className="border rounded-md px-3 py-1.5 text-sm bg-background"
-                />
+                <PickupAutocomplete id="pickup_location" placeholder={`Different from ${ride.origin}?`} />
               </div>
             </>
           )}
@@ -125,13 +121,7 @@ export default async function RideDetailPage({ params }) {
           {!isFull && (
             <div className="flex flex-col gap-1 text-sm">
               <label htmlFor="pickup_location_retry" className="text-muted-foreground">Pickup location <span className="text-xs">(optional)</span></label>
-              <input
-                id="pickup_location_retry"
-                name="pickup_location"
-                type="text"
-                placeholder={`Different from ${ride.origin}?`}
-                className="border rounded-md px-3 py-1.5 text-sm bg-background"
-              />
+              <PickupAutocomplete id="pickup_location_retry" placeholder={`Different from ${ride.origin}?`} />
             </div>
           )}
           <Button className="w-full" disabled={isFull}>{isFull ? "Fully booked" : "Request again"}</Button>
@@ -195,6 +185,16 @@ export default async function RideDetailPage({ params }) {
                       )}
                       {booking.status === "confirmed" && passenger?.phone && (
                         <p className="text-sm text-muted-foreground mt-0.5">Phone: <span className="font-medium text-foreground">{passenger.phone.slice(0, 3)} {passenger.phone.slice(3)}</span></p>
+                      )}
+                      {booking.status === "confirmed" && (
+                        <a
+                          href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(ride.origin)}&destination=${encodeURIComponent(booking.pickup_location || ride.destination)}&travelmode=driving`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-sm text-primary hover:underline mt-1"
+                        >
+                          <Navigation className="h-3.5 w-3.5" /> Get directions
+                        </a>
                       )}
                     </div>
                     {booking.status === "pending" && (
