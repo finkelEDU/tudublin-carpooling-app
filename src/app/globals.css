@@ -30,11 +30,6 @@ main{
   min-height: 70vh;
 }
 
-footer{
-  background-color: #9CD9E4;
-  text-align: center;
-  padding: 1rem;
-}
 
 .mapClass{
   width: 75%;

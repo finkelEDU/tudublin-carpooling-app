@@ -7,6 +7,9 @@ import { Inter } from 'next/font/google'
 import Navbar from "@/components/layout/Navbar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "sonner";
+import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
+import { FaInstagram, FaXTwitter, FaFacebook } from "react-icons/fa6";
 export const metadata = {
   title: "TU Dublin Carpooling",
   description: "For TU Dublin students to get discounted taxis and buses",
@@ -50,15 +53,21 @@ export default async function RootLayout({children}){
           <main>
             {children}
           </main>
-          <footer className="border-t mt-16">
+          <footer className="bg-muted/50 mt-16">
+            <Separator />
             <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-              <p className="font-medium">TU Dublin Carpooling</p>
+              <p className="font-semibold text-foreground">TU Dublin Carpooling</p>
               <nav className="flex gap-6">
-                <a href="/rides" className="hover:text-foreground transition-colors">Rides</a>
-                <a href="/pools" className="hover:text-foreground transition-colors">Pools</a>
-                <a href="/about" className="hover:text-foreground transition-colors">About</a>
-                <a href="/chat" className="hover:text-foreground transition-colors">Chat</a>
+                <Link href="/rides" className="hover:text-foreground transition-colors">Rides</Link>
+                <Link href="/pools" className="hover:text-foreground transition-colors">Pools</Link>
+                <Link href="/about" className="hover:text-foreground transition-colors">About</Link>
+                <Link href="/chat" className="hover:text-foreground transition-colors">Chat</Link>
               </nav>
+              <div className="flex items-center gap-4">
+                <a href="#" aria-label="Instagram" className="hover:text-foreground transition-colors"><FaInstagram size={18} /></a>
+                <a href="#" aria-label="X / Twitter" className="hover:text-foreground transition-colors"><FaXTwitter size={18} /></a>
+                <a href="#" aria-label="Facebook" className="hover:text-foreground transition-colors"><FaFacebook size={18} /></a>
+              </div>
               <p>© {new Date().getFullYear()} TU Dublin</p>
             </div>
           </footer>

@@ -40,7 +40,6 @@ export async function GET(request) {
     if (username && userType) {
       await User.create({ supabase_id: user.id, email: user.email, username, userType })
     } else {
-      // OAuth user — no username/userType yet, send to onboarding
       return NextResponse.redirect(`${origin}/onboarding`)
     }
   }

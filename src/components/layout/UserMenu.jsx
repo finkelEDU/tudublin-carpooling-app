@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Sun, Moon, Laptop, LayoutDashboard, User, Car, ShieldAlert, LogOut, Shield } from "lucide-react"
+import { Sun, Moon, Laptop, LayoutDashboard, User, Car, ShieldAlert, LogOut, Shield, Info } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -50,6 +50,11 @@ export default function UserMenu({ user }) {
         <DropdownMenuItem asChild>
           <Link href="/rides/my-rides" className="flex items-center gap-2">
             <Car className="h-4 w-4" />My rides
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/about" className="flex items-center gap-2">
+            <Info className="h-4 w-4" />About
           </Link>
         </DropdownMenuItem>
         {user.userType === "Admin" && (
