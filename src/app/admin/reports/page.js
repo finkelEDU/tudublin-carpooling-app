@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db"
 import Report from "@/models/Report"
 import { Card, CardContent } from "@/components/ui/card"
 import ResolveReportButton from "@/components/admin/ResolveReportButton"
+import Link from "next/link"
 
 export default async function AdminReportsPage() {
   await requireAdmin()
@@ -20,7 +21,9 @@ export default async function AdminReportsPage() {
     comment: r.comment,
     createdAt: new Date(r.createdAt).toLocaleDateString("en-IE"),
     reporter: r.reporter?.username ?? "Unknown",
+    reporterUsername: r.reporter?.username ?? null,
     reportedUser: r.reportedUser?.username ?? "Unknown",
+    reportedUserUsername: r.reportedUser?.username ?? null,
   }))
 
   return (
@@ -39,9 +42,17 @@ export default async function AdminReportsPage() {
               <CardContent className="pt-4 flex items-start justify-between gap-4">
                 <div className="space-y-1 text-sm">
                   <p>
-                    <span className="font-medium">{r.reporter}</span>
+                    {r.reporterUsername ? (
+                      <Link href={`/profile/${r.reporterUsername}`} className="font-medium hover:underline">{r.reporter}</Link>
+                    ) : (
+                      <span className="font-medium">{r.reporter}</span>
+                    )}
                     <span className="text-muted-foreground"> reported </span>
-                    <span className="font-medium">{r.reportedUser}</span>
+                    {r.reportedUserUsername ? (
+                      <Link href={`/profile/${r.reportedUserUsername}`} className="font-medium hover:underline">{r.reportedUser}</Link>
+                    ) : (
+                      <span className="font-medium">{r.reportedUser}</span>
+                    )}
                   </p>
                   <p className="text-muted-foreground">Reason: {r.reason}</p>
                   {r.comment && <p className="text-muted-foreground">"{r.comment}"</p>}
