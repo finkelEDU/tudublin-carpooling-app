@@ -21,7 +21,7 @@ export default async function RideDetailPage({ params }) {
   const [{ data: ride }, { data: existingBooking }, { data: bookings }] = await Promise.all([
     supabase.from("rides").select("*").eq("id", id).single(),
     user
-      ? supabase.from("bookings").select("id, status").eq("ride_id", id).eq("passenger_id", user.id).in("status", ["pending", "confirmed", "declined"]).maybeSingle()
+      ? supabase.from("bookings").select("id, status").eq("ride_id", id).eq("passenger_id", user.id).in("status", ["pending", "confirmed", "declined"]).order("created_at", { ascending: false }).limit(1).maybeSingle()
       : Promise.resolve({ data: null }),
     supabase.from("bookings").select("id, status, seats_booked, passenger_id, pickup_location").eq("ride_id", id).neq("status", "cancelled").order("created_at", { ascending: true }),
   ])
@@ -155,6 +155,12 @@ export default async function RideDetailPage({ params }) {
           <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm">
             <p className="font-medium text-green-800">Booking confirmed</p>
             <p className="text-green-700 mt-0.5">The driver has accepted your request. See you on the road!</p>
+            <p className="text-green-700 mt-1">
+              Driver's phone:{" "}
+              <span className="font-medium">
+                {driver?.phone ? `${driver.phone.slice(0, 3)} ${driver.phone.slice(3)}` : "Not provided"}
+              </span>
+            </p>
           </div>
           <form action={cancelBooking.bind(null, existingBooking.id, id)}>
             <Button variant="outline" className="w-full">Cancel booking</Button>
@@ -186,6 +192,9 @@ export default async function RideDetailPage({ params }) {
                       </p>
                       {booking.pickup_location && (
                         <p className="text-sm text-muted-foreground mt-0.5">Pickup: {booking.pickup_location}</p>
+                      )}
+                      {booking.status === "confirmed" && passenger?.phone && (
+                        <p className="text-sm text-muted-foreground mt-0.5">Phone: <span className="font-medium text-foreground">{passenger.phone.slice(0, 3)} {passenger.phone.slice(3)}</span></p>
                       )}
                     </div>
                     {booking.status === "pending" && (

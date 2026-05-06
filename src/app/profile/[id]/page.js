@@ -56,7 +56,7 @@ export default async function Profile(props) {
       {viewer && user.phone && (
         <div className="border rounded-xl p-5">
           <h2 className="font-semibold mb-2">Phone</h2>
-          <p className="text-sm text-muted-foreground">{user.phone}</p>
+          <p className="text-sm text-muted-foreground">{user.phone.slice(0, 3)} {user.phone.slice(3)}</p>
         </div>
       )}
 
