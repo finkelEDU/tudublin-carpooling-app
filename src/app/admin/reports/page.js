@@ -3,11 +3,16 @@ import { connectDB } from "@/lib/db"
 import Report from "@/models/Report"
 import { Card, CardContent } from "@/components/ui/card"
 import ResolveReportButton from "@/components/admin/ResolveReportButton"
+import AdminSearch from "@/components/admin/AdminSearch"
 import Link from "next/link"
+import { Suspense } from "react"
 
-export default async function AdminReportsPage() {
+export default async function AdminReportsPage({ searchParams }) {
   await requireAdmin()
   await connectDB()
+
+  const { q } = await searchParams
+  const query = q?.toLowerCase() ?? ""
 
   const reports = await Report.find()
     .populate("reporter", "username")
@@ -15,7 +20,7 @@ export default async function AdminReportsPage() {
     .sort({ createdAt: -1 })
     .lean()
 
-  const safeReports = reports.map((r) => ({
+  const allReports = reports.map((r) => ({
     _id: r._id.toString(),
     reason: r.reason,
     comment: r.comment,
@@ -26,12 +31,23 @@ export default async function AdminReportsPage() {
     reportedUserUsername: r.reportedUser?.username ?? null,
   }))
 
+  const safeReports = query
+    ? allReports.filter(
+        (r) =>
+          r.reporter.toLowerCase().includes(query) ||
+          r.reportedUser.toLowerCase().includes(query)
+      )
+    : allReports
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Reports</h1>
         <span className="text-sm text-muted-foreground">{safeReports.length} open</span>
       </div>
+      <Suspense>
+        <AdminSearch placeholder="Search by username..." />
+      </Suspense>
 
       {safeReports.length === 0 ? (
         <p className="text-muted-foreground text-sm">No open reports.</p>
