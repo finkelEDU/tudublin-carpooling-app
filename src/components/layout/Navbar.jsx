@@ -4,6 +4,7 @@ import logo from "../../images/carpool_logo.png"
 import { Button } from "@/components/ui/button"
 import UserMenu from "./UserMenu"
 import MobileMenu from "./MobileMenu"
+import NavDropdown from "./NavDropdown"
 
 export default function Navbar({ user }) {
   return (
@@ -15,23 +16,17 @@ export default function Navbar({ user }) {
           </Link>
           <nav className="hidden md:flex items-center gap-4">
             <Link className="nav-link" href="/">Home</Link>
-            <Link className="nav-link" href="/search">Search</Link>
             <Link className="nav-link" href="/users">Users</Link>
             <Link className="nav-link" href="/chat">Chat</Link>
-            {user && (
-              <>
-                <Link className="nav-link" href="/pools">Pools</Link>
-              </>
-            )}
-            <Link className="nav-link" href="/rides">Rides</Link>
           </nav>
         </div>
 
         <div className="flex items-center gap-3">
           {user ? (
-            //need to pass plain object that is derived from object manipulation
-            // of retrieving user profile that lives in mongo db
-            <UserMenu user={{ username: user.username, profilePic: user.profilePic, userType: user.userType }} />
+            <>
+              <NavDropdown isLoggedIn={!!user} />
+              <UserMenu user={{ username: user.username, profilePic: user.profilePic, userType: user.userType }} />
+            </>
           ) : (
             <>
               <Button asChild variant="ghost" className="text-white hover:text-white hover:bg-white/10">

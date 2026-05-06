@@ -50,8 +50,17 @@ export default async function RootLayout({children}){
           <main>
             {children}
           </main>
-          <footer>
-            <p>Copyright - 2025 TU Dublin Carpooling</p>
+          <footer className="border-t mt-16">
+            <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+              <p className="font-medium">TU Dublin Carpooling</p>
+              <nav className="flex gap-6">
+                <a href="/rides" className="hover:text-foreground transition-colors">Rides</a>
+                <a href="/pools" className="hover:text-foreground transition-colors">Pools</a>
+                <a href="/about" className="hover:text-foreground transition-colors">About</a>
+                <a href="/chat" className="hover:text-foreground transition-colors">Chat</a>
+              </nav>
+              <p>© {new Date().getFullYear()} TU Dublin</p>
+            </div>
           </footer>
         </ThemeProvider>
       </body>

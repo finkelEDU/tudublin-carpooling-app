@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Sun, Moon, Laptop } from "lucide-react"
+import { Sun, Moon, Laptop, LayoutDashboard, User, Car, ShieldAlert, LogOut, Shield } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -38,19 +38,27 @@ export default function UserMenu({ user }) {
         <div className="px-2 py-1.5 text-sm font-medium">{user.username}</div>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/protected">Dashboard</Link>
+          <Link href="/protected" className="flex items-center gap-2">
+            <LayoutDashboard className="h-4 w-4" />Dashboard
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/profile">Profile</Link>
+          <Link href="/profile" className="flex items-center gap-2">
+            <User className="h-4 w-4" />Profile
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/rides/my-rides">My rides</Link>
+          <Link href="/rides/my-rides" className="flex items-center gap-2">
+            <Car className="h-4 w-4" />My rides
+          </Link>
         </DropdownMenuItem>
         {user.userType === "Admin" && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link href="/admin">Admin</Link>
+              <Link href="/admin" className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />Admin
+              </Link>
             </DropdownMenuItem>
           </>
         )}
@@ -73,11 +81,13 @@ export default function UserMenu({ user }) {
           </>
         )}
         <DropdownMenuItem asChild className="text-destructive font-medium">
-          <Link href="/emergency">Emergency</Link>
+          <Link href="/emergency" className="flex items-center gap-2">
+            <ShieldAlert className="h-4 w-4" />Emergency
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout} className="text-destructive">
-          Logout
+        <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 text-destructive">
+          <LogOut className="h-4 w-4" />Logout
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

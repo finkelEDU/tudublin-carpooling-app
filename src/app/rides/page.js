@@ -4,6 +4,7 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { format } from "date-fns"
 import RideFilters from "@/components/rides/RideFilters"
+import RidesRealtime from "@/components/RidesRealtime"
 
 export default async function RidesPage({ searchParams }) {
   const { from, to, date, seats } = await searchParams
@@ -13,6 +14,7 @@ export default async function RidesPage({ searchParams }) {
     .from("rides")
     .select("*")
     .in("status", ["active", "full"])
+    .gte("departure_at", new Date().toISOString())
     .order("departure_at", { ascending: true })
 
   if (from) query = query.ilike("origin", `%${from}%`)
@@ -35,6 +37,7 @@ export default async function RidesPage({ searchParams }) {
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
+      <RidesRealtime />
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Available rides</h1>
         <Link

@@ -1,44 +1,66 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 export default function ResetPassword() {
-  const token = useSearchParams().get("token");
-
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+  const [password, setPassword] = useState("")
+  const [message, setMessage] = useState("")
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
   async function handleSubmit(e) {
-    e.preventDefault();
+    e.preventDefault()
+    setLoading(true)
+    setMessage("")
 
-    const res = await fetch("/api/auth/reset-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, password }),
-    });
+    const supabase = createClient()
+    const { error } = await supabase.auth.updateUser({ password })
 
-    const data = await res.json();
-    setMessage(data.message || data.error);
+    setLoading(false)
+
+    if (error) {
+      setMessage(error.message)
+    } else {
+      setMessage("Password updated. Redirecting...")
+      setTimeout(() => router.push("/login"), 1500)
+    }
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: "3rem auto" }}>
-      <h1>Reset Password</h1>
+    <div className="max-w-sm mx-auto mt-20 px-6 flex flex-col gap-6">
+      <div>
+        <h1 className="text-2xl font-bold mb-1">Set new password</h1>
+        <p className="text-sm text-muted-foreground">Enter a new password for your account.</p>
+      </div>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="password"
-          placeholder="New password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-
-        <button type="submit">Update Password</button>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="password">New password</Label>
+          <Input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Min. 6 characters"
+            required
+            minLength={6}
+          />
+        </div>
+        <Button type="submit" disabled={loading}>
+          {loading ? "Updating..." : "Update password"}
+        </Button>
       </form>
 
-      {message && <p>{message}</p>}
+      {message && (
+        <p className={`text-sm ${message.includes("updated") ? "text-green-600" : "text-destructive"}`}>
+          {message}
+        </p>
+      )}
     </div>
-  );
+  )
 }

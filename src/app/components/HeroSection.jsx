@@ -12,8 +12,10 @@ export default function HeroSection({ pools, requests }) {
   const [searchPin, setSearchPin] = useState(null)
 
   return (
-    <section className="max-w-6xl mx-auto px-6 py-16 flex flex-col-reverse md:flex-row items-center gap-12">
-      <div className="flex-1 space-y-6">
+    <section className="max-w-6xl mx-auto px-6 py-16 flex flex-col md:flex-row items-center gap-8">
+
+      {/* Left column: text + search (desktop) + buttons */}
+      <div className="flex-1 space-y-6 w-full">
         <p className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
           TU Dublin · Ride sharing & carpooling
         </p>
@@ -23,9 +25,12 @@ export default function HeroSection({ pools, requests }) {
         <p className="text-lg text-muted-foreground max-w-md">
           Carpooling for TU Dublin students and staff. Post a ride or find a seat heading to or from campus.
         </p>
-        <MapsProvider>
-          <LocationSearch onSearch={setSearchPin} />
-        </MapsProvider>
+        {/* Search on desktop only */}
+        <div className="hidden md:block">
+          <MapsProvider>
+            <LocationSearch onSearch={setSearchPin} />
+          </MapsProvider>
+        </div>
         <div className="flex gap-3 flex-wrap">
           <Button asChild size="lg" variant="outline">
             <Link href="/rides"><Car className="mr-2 h-4 w-4" />Browse all rides</Link>
@@ -35,9 +40,19 @@ export default function HeroSection({ pools, requests }) {
           </Button>
         </div>
       </div>
-      <div className="flex-1 rounded-2xl overflow-hidden shadow-lg" style={{ height: "400px" }}>
+
+      {/* Map */}
+      <div className="w-full md:flex-1 rounded-2xl overflow-hidden shadow-lg" style={{ height: "300px", isolation: "isolate" }}>
         <MapClient pools={pools} requests={requests} searchPin={searchPin} />
       </div>
+
+      {/* Search on mobile only — sits below the map */}
+      <div className="w-full md:hidden">
+        <MapsProvider>
+          <LocationSearch onSearch={setSearchPin} />
+        </MapsProvider>
+      </div>
+
     </section>
   )
 }

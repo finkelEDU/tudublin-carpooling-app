@@ -44,7 +44,7 @@ export default async function RideDetailPage({ params }) {
 
   return (
     <div className="p-6 max-w-lg mx-auto mt-10">
-      <RideDetailRealtime rideId={id} isDriver={isDriver} />
+      <RideDetailRealtime rideId={id} isDriver={isDriver} bookingId={existingBooking?.id ?? null} />
       <h1 className="text-2xl font-bold mb-1">
         {ride.origin}{ride.origin_eircode ? ` · ${ride.origin_eircode}` : ""} → {ride.destination}{ride.destination_eircode ? ` · ${ride.destination_eircode}` : ""}
       </h1>
@@ -53,7 +53,16 @@ export default async function RideDetailPage({ params }) {
       </p>
 
       <div className="border rounded-xl p-5 flex flex-col gap-3 mb-6 bg-card">
-        <Row label="Driver" value={driver?.username ?? "Unknown"} />
+        <div className="flex justify-between text-sm">
+          <span className="text-muted-foreground">Driver</span>
+          {driver?.username ? (
+            <Link href={`/profile/${driver.username}`} className="font-medium hover:underline">
+              {driver.username}
+            </Link>
+          ) : (
+            <span className="font-medium">Unknown</span>
+          )}
+        </div>
         <Row label="Seats available" value={`${ride.seats_available} of ${ride.seats_total}`} />
         <Row label="Status" value={ride.status} />
       </div>
@@ -165,7 +174,13 @@ export default async function RideDetailPage({ params }) {
                 return (
                   <li key={booking.id} className="border rounded-xl px-4 py-3 flex items-center justify-between gap-4 bg-card">
                     <div>
-                      <p className="font-medium">{passenger?.username ?? "Unknown"}</p>
+                      {passenger?.username ? (
+                        <Link href={`/profile/${passenger.username}`} className="font-medium hover:underline">
+                          {passenger.username}
+                        </Link>
+                      ) : (
+                        <p className="font-medium">Unknown</p>
+                      )}
                       <p className="text-sm text-muted-foreground">
                         {booking.seats_booked} seat{booking.seats_booked !== 1 ? "s" : ""} · <span className="capitalize">{booking.status}</span>
                       </p>

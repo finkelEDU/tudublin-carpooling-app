@@ -36,6 +36,12 @@ export default async function BookingsPage() {
   ])
 
   const now = Date.now()
+
+  const allActive = active ?? []
+  const activeUpcoming = allActive.filter(b => b.ride && new Date(b.ride.departure_at).getTime() >= now)
+  const activePast = allActive.filter(b => !b.ride || new Date(b.ride.departure_at).getTime() < now)
+  const allInactive = [...activePast, ...(inactive ?? [])]
+
   const isSoon = (departureAt) => {
     const diff = new Date(departureAt).getTime() - now
     return diff > 0 && diff < 24 * 60 * 60 * 1000
@@ -48,17 +54,17 @@ export default async function BookingsPage() {
 
       <section className="mb-10">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-4">
-          Active ({active?.length ?? 0})
+          Active ({activeUpcoming.length})
         </h2>
 
-        {!active?.length ? (
+        {!activeUpcoming.length ? (
           <p className="text-sm text-muted-foreground">
             No active bookings.{" "}
             <Link href="/rides" className="hover:underline">Browse rides →</Link>
           </p>
         ) : (
           <ul className="flex flex-col gap-3">
-            {active.map((booking) => {
+            {activeUpcoming.map((booking) => {
               const ride = booking.ride
               if (!ride) return null
 
@@ -93,13 +99,13 @@ export default async function BookingsPage() {
         )}
       </section>
 
-      {!!inactive?.length && (
+      {!!allInactive.length && (
         <section>
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-4">
-            Past ({inactive.length})
+            Past ({allInactive.length})
           </h2>
           <ul className="flex flex-col gap-3">
-            {inactive.map((booking) => {
+            {allInactive.map((booking) => {
               const ride = booking.ride
               if (!ride) return null
 

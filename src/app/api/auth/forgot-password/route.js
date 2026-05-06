@@ -1,38 +1,23 @@
-import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
-import User from "@/models/User";
-import crypto from "crypto";
-import { sendResetEmail } from "@/lib/email";
+import { NextResponse } from "next/server"
+import { createClient } from "@/lib/supabase/server"
 
 export async function POST(req) {
-  try {
-    await connectDB();
+  const { email } = await req.json()
 
-    const { email } = await req.json();
-
-    const user = await User.findOne({ email });
-    
-    if (!user) {
-      return NextResponse.json({
-        message: "If email exists, reset link sent",
-      });
-    }
-
-    const token = crypto.randomBytes(32).toString("hex");
-
-    user.resetPasswordToken = token;
-    user.resetPasswordExpires = Date.now() + 1000 * 60 * 30;
-
-    await user.save();
-
-    await sendResetEmail(email, token);
-
-    return NextResponse.json({
-      message: "If email exists, reset link sent",
-    });
-
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  if (!email) {
+    return NextResponse.json({ error: "Email required" }, { status: 400 })
   }
+
+  const supabase = await createClient()
+  const origin = req.headers.get("origin") ?? "http://localhost:3000"
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/api/auth/callback?next=/reset-password`,
+  })
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ message: "If that email exists, a reset link has been sent." })
 }

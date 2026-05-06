@@ -13,6 +13,7 @@ export default async function Home() {
     .from("rides")
     .select("*", { count: "exact", head: true })
     .eq("status", "active")
+    .gte("departure_at", new Date().toISOString())
 
   await connectDB()
   const pools = await Pool.find().lean()
