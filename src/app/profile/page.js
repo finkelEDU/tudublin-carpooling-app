@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
-export default async function Profile() {
+export default async function Profile({ searchParams }) {
   const user = await getMongoUser()
+  const { phoneError } = await searchParams
 
   if (!user) {
     return (
@@ -59,6 +60,24 @@ export default async function Profile() {
               className="border rounded-md px-3 py-2 text-sm bg-background resize-none"
             />
           </div>
+          <Button type="submit" size="sm" className="w-fit">Save</Button>
+        </form>
+      </div>
+
+      <div className="border rounded-xl p-5 flex flex-col gap-4">
+        <div>
+          <h2 className="font-semibold mb-1">Phone number</h2>
+          <p className="text-sm text-muted-foreground">{user.phone || "Not provided"}</p>
+        </div>
+        <form action="/api/profile/update-phone" method="POST" className="flex flex-col gap-3 pt-4 border-t">
+          <h3 className="text-sm font-medium">Update phone number</h3>
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="phone">Phone</Label>
+            <Input id="phone" type="tel" name="phone" defaultValue={user.phone} placeholder="0861234567" pattern="0\d{9}" title="Must be 10 digits starting with 0" />
+          </div>
+          {phoneError === "invalid" && (
+            <p className="text-sm text-red-500">Invalid phone number. Must be 10 digits starting with 0 (e.g. 0861234567).</p>
+          )}
           <Button type="submit" size="sm" className="w-fit">Save</Button>
         </form>
       </div>

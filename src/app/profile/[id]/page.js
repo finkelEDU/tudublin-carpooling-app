@@ -4,9 +4,12 @@ import ReviewForm from "../../components/ReviewForm"
 import ReportForm from "../../components/ReportForm"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { getMongoUser } from "@/lib/getMongoUser"
 
 export default async function Profile(props) {
   const params = await props.params
+
+  const viewer = await getMongoUser()
 
   await connectDB()
   const user = await User.findOne({ username: params.id })
@@ -47,6 +50,13 @@ export default async function Profile(props) {
         <div className="border rounded-xl p-5">
           <h2 className="font-semibold mb-2">About</h2>
           <p className="text-sm text-muted-foreground">{user.about}</p>
+        </div>
+      )}
+
+      {viewer && user.phone && (
+        <div className="border rounded-xl p-5">
+          <h2 className="font-semibold mb-2">Phone</h2>
+          <p className="text-sm text-muted-foreground">{user.phone}</p>
         </div>
       )}
 

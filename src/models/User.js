@@ -49,6 +49,10 @@ const UserSchema = new mongoose.Schema({
 		type: String,
 		default: "No information provided."
 	},
+	phone: {
+		type: String,
+		default: ""
+	},
 	
 	reviews: [ReviewSchema],
 	
