@@ -16,6 +16,7 @@ export default function Navbar({ user }) {
           </Link>
           <nav className="hidden md:flex items-center gap-4">
             <Link className="nav-link" href="/">Home</Link>
+            <Link className="nav-link" href="/search">Search</Link>
             <Link className="nav-link" href="/users">Users</Link>
             <Link className="nav-link" href="/chat">Chat</Link>
           </nav>
