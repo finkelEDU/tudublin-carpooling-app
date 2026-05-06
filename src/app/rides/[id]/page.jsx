@@ -13,6 +13,8 @@ import DeleteRideButton from "@/components/rides/DeleteRideButton"
 import RouteMap from "@/components/rides/RouteMap"
 import RideDetailRealtime from "@/components/RideDetailRealtime"
 import PickupAutocomplete from "@/components/rides/PickupAutocomplete"
+import ReviewForm from "@/app/components/ReviewForm"
+import { getMongoUser } from "@/lib/getMongoUser"
 
 export default async function RideDetailPage({ params }) {
   const { id } = await params
@@ -38,6 +40,12 @@ export default async function RideDetailPage({ params }) {
     ? await User.find({ supabase_id: { $in: passengerIds } }).lean()
     : []
   const passengerMap = Object.fromEntries(passengers.map(p => [p.supabase_id, p]))
+
+  const mongoUser = user ? await getMongoUser() : null
+  const driverId = driver?._id?.toString() ?? null
+  const alreadyReviewed = mongoUser && driver
+    ? driver.reviews?.some(r => r.reviewer?.toString() === mongoUser._id.toString())
+    : false
 
   const isDriver = user?.id === ride.driver_id
   const isFull = ride.seats_available === 0
@@ -155,6 +163,17 @@ export default async function RideDetailPage({ params }) {
           <form action={cancelBooking.bind(null, existingBooking.id, id)}>
             <Button variant="outline" className="w-full">Cancel booking</Button>
           </form>
+        </div>
+      )}
+
+      {!isDriver && ride.status === "completed" && existingBooking?.status === "confirmed" && driverId && (
+        <div className="border rounded-xl p-5 flex flex-col gap-4">
+          <h2 className="font-semibold">Rate your driver</h2>
+          {alreadyReviewed ? (
+            <p className="text-sm text-muted-foreground">You have already reviewed this driver.</p>
+          ) : (
+            <ReviewForm driverId={driverId} />
+          )}
         </div>
       )}
 

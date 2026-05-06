@@ -54,6 +54,12 @@ export default function NewRidePage() {
       return
     }
 
+    const combinedAt = new Date(`${format(result.data.departure_at, "yyyy-MM-dd")}T${hour}:${minute}:00`)
+    if (combinedAt <= new Date()) {
+      setErrors({ departure_time: "Departure time must be in the future" })
+      return
+    }
+
     setErrors({})
     setIsPending(true)
 
@@ -134,7 +140,11 @@ export default function NewRidePage() {
                   mode="single"
                   selected={departureAt}
                   onSelect={(date) => { setDepartureAt(date); setCalendarOpen(false) }}
-                  disabled={(date) => date < new Date()}
+                  disabled={(date) => {
+                    const today = new Date()
+                    today.setHours(0, 0, 0, 0)
+                    return date < today
+                  }}
                 />
               </PopoverContent>
             </Popover>

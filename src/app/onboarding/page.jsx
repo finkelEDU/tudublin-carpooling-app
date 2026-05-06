@@ -1,7 +1,6 @@
 "use client"
 
-import { useState } from "react"
-import { useFormState } from "react-dom"
+import { useActionState } from "react"
 import { completeOnboarding } from "./actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function OnboardingPage() {
-  const [state, action] = useFormState(completeOnboarding, null)
+  const [state, action] = useActionState(completeOnboarding, null)
 
   return (
     <div className="flex min-h-screen items-start justify-center pt-16">
@@ -37,6 +36,12 @@ export default function OnboardingPage() {
                 <option value="Student">Student</option>
                 <option value="Driver">Driver</option>
               </select>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="phone">Phone number <span className="text-muted-foreground font-normal">(optional)</span></Label>
+              <Input id="phone" name="phone" type="tel" placeholder="0861234567" pattern="0\d{9}" title="Must be 10 digits starting with 0" />
+              <p className="text-xs text-muted-foreground">Used so drivers and passengers can contact you once a booking is confirmed.</p>
             </div>
 
             {state?.error && <p className="text-sm text-destructive">{state.error}</p>}

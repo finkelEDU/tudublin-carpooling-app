@@ -10,7 +10,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 export default async function Profile({ searchParams }) {
   const user = await getMongoUser()
-  const { phoneError } = await searchParams
+  const { phoneError, welcome } = await searchParams
 
   if (!user) {
     return (
@@ -33,6 +33,12 @@ export default async function Profile({ searchParams }) {
           <Badge variant="secondary" className="mt-1">{user.userType}</Badge>
         </div>
       </div>
+
+      {!user.phone && (
+        <div className="border border-yellow-300 bg-yellow-50 dark:bg-yellow-950/30 dark:border-yellow-800 rounded-xl px-4 py-3 text-sm text-yellow-800 dark:text-yellow-300">
+          {welcome ? "Welcome! " : ""}Add your phone number so drivers and passengers can contact you once a booking is confirmed.
+        </div>
+      )}
 
       <div className="border rounded-xl p-5 flex flex-col gap-4">
         <h2 className="font-semibold">Profile picture</h2>

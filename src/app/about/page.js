@@ -45,8 +45,8 @@ export default function About() {
         <h2 className="text-2xl font-bold">Mission</h2>
         <p className="text-muted-foreground leading-relaxed">
           Our goal is to reduce single-occupancy trips to and from TU Dublin by making
-          carpooling genuinely convenient — clear pickup points, schedule-aware matching,
-          transparent cost contributions, and a respectful community standard.
+          carpooling genuinely convenient — clear pickup points, 
+          ad-hoc payment system. and a respectful community standard.
         </p>
         <div className="flex gap-2 flex-wrap">
           <Badge><Leaf className="h-3 w-3 mr-1" />CO₂ reduction</Badge>
@@ -84,7 +84,7 @@ export default function About() {
         <p className="text-muted-foreground leading-relaxed">
           We prioritise safety with TU Dublin email verification, ride history, user ratings,
           and clear reporting pathways. Drivers and passengers can rate each trip and flag
-          any issues directly to admins.
+          any issues directly for admins to review.
         </p>
       </section>
 
