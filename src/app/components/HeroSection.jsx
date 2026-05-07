@@ -23,7 +23,7 @@ export default function HeroSection({ pools, requests }) {
           Split the load,<br />share the road.
         </h1>
         <p className="text-lg text-muted-foreground max-w-md">
-          Carpooling for TU Dublin students and staff. Post a ride or find a seat heading to or from campus.
+          Carpooling for TU Dublin students. Post a ride or find a seat heading to or from campus.
         </p>
         {/* Search on desktop only */}
         <div className="hidden md:block">
