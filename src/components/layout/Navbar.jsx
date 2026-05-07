@@ -25,7 +25,7 @@ export default function Navbar({ user }) {
         <div className="flex items-center gap-3">
           {user ? (
             <>
-              <NavDropdown isLoggedIn={!!user} />
+              <div className="hidden md:block"><NavDropdown isLoggedIn={!!user} /></div>
               <UserMenu user={{ username: user.username, profilePic: user.profilePic, userType: user.userType }} />
             </>
           ) : (
@@ -38,7 +38,7 @@ export default function Navbar({ user }) {
               </Button>
             </>
           )}
-          <MobileMenu isLoggedIn={!!user} userType={user?.userType ?? null} />
+          <MobileMenu />
         </div>
       </div>
     </header>

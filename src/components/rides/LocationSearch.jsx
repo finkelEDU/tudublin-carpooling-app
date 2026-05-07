@@ -18,20 +18,23 @@ export default function LocationSearch({ compact = false, onSearch }) {
     setIsLocating(true)
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
-        if (!geocoding) { setIsLocating(false); return }
-        const geocoder = new geocoding.Geocoder()
-        const { results } = await geocoder.geocode({
-          location: { lat: pos.coords.latitude, lng: pos.coords.longitude },
-        })
-        const components = results[0]?.address_components ?? []
-        const locality = components.find(c =>
-          c.types.includes("locality") || c.types.includes("postal_town")
-        )?.long_name
-        const label = locality ?? results[0]?.formatted_address ?? ""
-        setLocation(label)
-        if (onSearch) {
-          onSearch({ lat: pos.coords.latitude, lng: pos.coords.longitude, label })
+        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+        let label = `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`
+
+        if (geocoding) {
+          try {
+            const geocoder = new geocoding.Geocoder()
+            const { results } = await geocoder.geocode({ location: coords })
+            const components = results[0]?.address_components ?? []
+            const locality = components.find(c =>
+              c.types.includes("locality") || c.types.includes("postal_town")
+            )?.long_name
+            label = locality ?? results[0]?.formatted_address ?? label
+          } catch {}
         }
+
+        setLocation(label)
+        if (onSearch) onSearch({ ...coords, label })
         setIsLocating(false)
       },
       () => setIsLocating(false)
@@ -43,11 +46,15 @@ export default function LocationSearch({ compact = false, onSearch }) {
     if (!location.trim()) return
 
     if (onSearch && geocoding) {
-      const geocoder = new geocoding.Geocoder()
-      const { results } = await geocoder.geocode({ address: location.trim() })
-      if (results?.[0]) {
-        const { lat, lng } = results[0].geometry.location
-        onSearch({ lat: lat(), lng: lng(), label: location.trim() })
+      try {
+        const geocoder = new geocoding.Geocoder()
+        const { results } = await geocoder.geocode({ address: location.trim() })
+        if (results?.[0]) {
+          const { lat, lng } = results[0].geometry.location
+          onSearch({ lat: lat(), lng: lng(), label: location.trim() })
+        }
+      } catch {
+        // geocoding unavailable, search still navigates
       }
     }
 
