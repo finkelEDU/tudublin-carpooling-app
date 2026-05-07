@@ -110,12 +110,14 @@ export default async function BookingsPage() {
               if (!ride) return null
 
               return (
-                <li key={booking.id} className="border rounded-xl px-4 py-3 opacity-50">
-                  <p className="font-medium">{ride.origin} → {ride.destination}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {format(new Date(ride.departure_at), "PPP 'at' p")}
-                  </p>
-                  <p className="text-sm mt-1">{STATUS_LABEL[booking.status]}</p>
+                <li key={booking.id} className="border rounded-xl px-4 py-3">
+                  <Link href={`/rides/${ride.id}`} className="block hover:opacity-80 transition-opacity">
+                    <p className="font-medium">{ride.origin} → {ride.destination}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {format(new Date(ride.departure_at), "PPP 'at' p")}
+                    </p>
+                    <p className="text-sm mt-1 text-muted-foreground">{STATUS_LABEL[booking.status]}</p>
+                  </Link>
                 </li>
               )
             })}

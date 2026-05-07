@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Sun, Moon, Laptop, LayoutDashboard, User, Car, ShieldAlert, LogOut, Shield, Info } from "lucide-react"
+import { Sun, Moon, Laptop, LayoutDashboard, User, Car, LogOut, Shield, Info } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -85,12 +85,6 @@ export default function UserMenu({ user }) {
             <DropdownMenuSeparator />
           </>
         )}
-        <DropdownMenuItem asChild className="text-destructive font-medium">
-          <Link href="/emergency" className="flex items-center gap-2">
-            <ShieldAlert className="h-4 w-4" />Emergency
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 text-destructive">
           <LogOut className="h-4 w-4" />Logout
         </DropdownMenuItem>

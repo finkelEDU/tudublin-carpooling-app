@@ -51,6 +51,7 @@ export default async function RideDetailPage({ params }) {
   const isFull = ride.seats_available === 0
   const alreadyBooked = !!existingBooking
   const bookRideWithId = bookRide.bind(null, id)
+  const isPast = ride.status === "completed" || new Date(ride.departure_at) < new Date()
 
   return (
     <div className="p-6 max-w-lg mx-auto mt-10">
@@ -136,7 +137,7 @@ export default async function RideDetailPage({ params }) {
         </form>
       )}
 
-      {!isDriver && existingBooking?.status === "pending" && (
+      {!isDriver && !isPast && existingBooking?.status === "pending" && (
         <div className="flex flex-col gap-3">
           <div className="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm">
             <p className="font-medium text-yellow-800">Booking request sent</p>
@@ -148,7 +149,7 @@ export default async function RideDetailPage({ params }) {
         </div>
       )}
 
-      {!isDriver && existingBooking?.status === "confirmed" && (
+      {!isDriver && !isPast && existingBooking?.status === "confirmed" && (
         <div className="flex flex-col gap-3">
           <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm">
             <p className="font-medium text-green-800">Booking confirmed</p>
@@ -166,7 +167,7 @@ export default async function RideDetailPage({ params }) {
         </div>
       )}
 
-      {!isDriver && ride.status === "completed" && existingBooking?.status === "confirmed" && driverId && (
+      {!isDriver && ride.status === "completed" && existingBooking && existingBooking.status !== "declined" && driverId && (
         <div className="border rounded-xl p-5 flex flex-col gap-4">
           <h2 className="font-semibold">Rate your driver</h2>
           {alreadyReviewed ? (
